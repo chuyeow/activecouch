@@ -1,0 +1,10 @@
+ActiveCouch aims to be an easy-to-use, familiar ORM library for the hot new kid on the block, CouchDB.
+
+Preliminarily,
+- it will support ActiveRecord-esque functions such as find, create, save, etc.
+- it will have a nice couch.yml with configuration pointing to the CouchDB server
+- callbacks and observers (for example when to call upon saving of a new document)
+
+Nice to have extensions:
+- schema.rb which will contain schemas for the ActiveCouch documents
+- Migrations to change document schemas
