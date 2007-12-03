@@ -31,7 +31,7 @@ module ActiveCouch
       end
       
       def has_many(*args)
-        # has_many can contain a series of symbols each of which will correspond to a text node
+        # has_many can contain a series of symbols each of which will correspond to an array node
         # in the ActiveCouch::Base object
         # For e.g. has_many :airports will define the instance variable
         # @airports with the default value of an empty array
@@ -56,8 +56,10 @@ module ActiveCouch
           begin  
           @connection = Connection.new(YAML::load(File.open(spec)))
           rescue
-            raise ConfigurationError, "Error parsing file: #{spec}"
+            raise ConfigurationError, "Error parsing config file (either wrongly formatted or missing): #{spec}"
           end
+        else
+          raise IllegalArgumentError, "Arguments must either be a hash or string"
         end
         
         @connection
