@@ -1,12 +1,12 @@
 module ActiveCouch
-  class ActiveCouchError < StandardError
-  end
-  
-  class IllegalArgumentError < ActiveCouchError
-  end
-  
   class Base
     class << self
+      attr_writer :connection
+      
+      def connection
+        @connection
+      end
+      
       def define_instance_variable(var_name, default_value)
         unless var_name.is_a?(Symbol) || var_name.is_a?(String)
           raise IllegalArgumentError, "#{sym.inspect} is neither a String nor a Symbol"
