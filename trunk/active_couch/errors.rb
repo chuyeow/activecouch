@@ -5,6 +5,6 @@ module ActiveCouch
   class IllegalArgumentError < ActiveCouchError
   end
   
-  class ConfigurationMissingError < ActiveCouchError
+  class ConfigurationError < ActiveCouchError
   end
 end

@@ -3,11 +3,11 @@ module ActiveCouch
     attr_accessor :server, :port
     
     def initialize(options = {})
-      if options.has_key?(:server) && options.has_key?(:port)
+      if !options.nil? && options.has_key?(:server) && options.has_key?(:port)
         @server = options[:server]
         @port = options[:port]
       else
-        raise ConfigurationMissingError, "Configuration hash must contain keys for server and port"
+        raise ConfigurationError, "Configuration hash must contain keys for server and port"
       end
     end
     

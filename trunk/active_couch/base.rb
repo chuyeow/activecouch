@@ -1,11 +1,9 @@
+require 'yaml'
+
 module ActiveCouch
   class Base
     class << self
-      attr_writer :connection
-      
-      def connection
-        @connection
-      end
+      attr_accessor :connection
       
       def define_instance_variable(var_name, default_value)
         unless var_name.is_a?(Symbol) || var_name.is_a?(String)
@@ -47,6 +45,22 @@ module ActiveCouch
             def #{sym}=(val); @#{sym} = val; end
           eval
         end
+      end
+      
+      def establish_connection(spec = nil)
+        spec = 'config/couch.yml' if spec.nil? # Default to a file path if spec is nil
+        
+        if spec.is_a?(Hash)
+          @connection = Connection.new(spec)
+        elsif spec.is_a?(String)
+          begin  
+          @connection = Connection.new(YAML::load(File.open(spec)))
+          rescue
+            raise ConfigurationError, "Error parsing file: #{spec}"
+          end
+        end
+        
+        @connection
       end
     end # end Class Methods
   end # end Class Base
