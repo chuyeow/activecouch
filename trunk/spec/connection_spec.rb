@@ -2,11 +2,11 @@ require File.dirname(__FILE__) + '/spec_helper.rb'
 
 def initialize_connection(spec = nil)
   begin
-  @connection = ActiveCouch::Connection.new(spec)
+  connection = ActiveCouch::Connection.new(spec)
   rescue
-  @error = $!.to_s
+  error = $!.to_s
   end
-  return @connection, @error
+  return connection, error
 end
 
 
