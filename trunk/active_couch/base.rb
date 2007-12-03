@@ -7,7 +7,7 @@ module ActiveCouch
       
       def define_instance_variable(var_name, default_value)
         unless var_name.is_a?(Symbol) || var_name.is_a?(String)
-          raise IllegalArgumentError, "#{sym.inspect} is neither a String nor a Symbol"
+          raise ArgumentError, "#{var_name.inspect} is neither a String nor a Symbol"
         end
 
         class_eval <<-eval
@@ -37,7 +37,7 @@ module ActiveCouch
         # @airports with the default value of an empty array
         args.each do |sym|
           unless sym.is_a?(Symbol) || sym.is_a?(String)
-            raise IllegalArgumentError, "#{sym.inspect} is neither a String nor a Symbol"
+            raise ArgumentError, "#{sym.inspect} is neither a String nor a Symbol"
           end
 
           class_eval <<-eval

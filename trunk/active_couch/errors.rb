@@ -1,10 +1,7 @@
 module ActiveCouch
-  class ActiveCouchError < StandardError
+  class ActiveCouchError < StandardError #:nodoc:
   end
-  
-  class IllegalArgumentError < ActiveCouchError
-  end
-  
-  class ConfigurationError < ActiveCouchError
+
+  class ConfigurationError < ActiveCouchError #:nodoc:
   end
 end

@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/spec_helper.rb'
 
+class SimpleActiveCouch < ActiveCouch::Base; end
 class Person < ActiveCouch::Base
   has :name
 end
@@ -10,13 +11,33 @@ class PersonWithTelephones < ActiveCouch::Base
   has_many :telephones
 end
 
+describe "A subclass of ActiveCouch::Base" do
+  before(:each) do
+    @subclass = SimpleActiveCouch
+  end
+
+  it "should raise an ArgumentError when sent #has with an argument that is not a Symbol or String" do
+    lambda { @subclass.has(:foo, []) }.should raise_error(ArgumentError)
+  end
+
+  it "should define attribute accessors when sent #has with a symbol as parameter" do
+    @subclass.has(:name)
+
+    @subclass.instance_methods.should include('name', 'name=')
+  end
+
+  it "should set the empty string as the attribute value by default when sent #has with no :with_default_value option" do
+    @subclass.has(:name)
+
+    @subclass.new.name.should == ''
+  end
+end
+
 describe "An object created as a subclass of ActiveCouch::Base with one text attribute" do
   before(:each) do
     @person = Person.new
   end
-  it "should create an empty instance variable when sent #has with a symbol as parameter" do
-    @person.name.should == ""
-  end
+
   it "should be able to assign a value to the instance variable defined using the has class method" do
     @person.name.should == ""
     @person.name = "John Doe"
