@@ -1,8 +1,7 @@
 module ActiveCouch
   String.class_eval do
     def methodize
-      s = self.dup
-      s.gsub(/\@/, '')
+      self.dup.gsub(/\@/, '')
     end
   end
   
