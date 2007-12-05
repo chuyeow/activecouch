@@ -5,4 +5,14 @@ module ActiveCouch
       s.gsub(/\@/, '')
     end
   end
+  
+  Hash.class_eval do
+    # Flatten on the array removes everything into *one* single array,
+    # so {}.to_a.flatten sometimes won't work nicely because a value might be an array
+    # So..introducing flatten for Hash, so that arrays which are values (to keys)
+    # are retained
+    def flatten
+      (0...self.size).inject([]) {|result, x| result << self.keys[x]; result << self.values[x]}
+    end  
+  end      
 end

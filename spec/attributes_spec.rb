@@ -5,7 +5,7 @@ class Person < ActiveCouch::Base
   has :name
 end
 class PersonWithName < ActiveCouch::Base
-  has :name, :with_default_value => "John Doe"
+  has :name, :with_default_value => "McLovin"
 end
 class PersonWithTelephones < ActiveCouch::Base
   has_many :telephones
@@ -51,7 +51,7 @@ describe "An object created as a subclass of ActiveCouch::Base with one text att
   end
   
   it "should create an instance variable with the correct default value set when sent #has with a symbol as parameter" do
-    @person_with_name.name.should == "John Doe"
+    @person_with_name.name.should == "McLovin"
   end
 end
 
@@ -61,7 +61,7 @@ describe "An object created as a subclass of ActiveCouch::Base with one array at
   end
   
   it "should create an instance variable which is an empty array" do
-    @person_with_tels.telephones.class.should == Array
+    @person_with_tels.telephones.class.should == ActiveCouch::CouchArray
     @person_with_tels.telephones.size.should == 0
   end
   

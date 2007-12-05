@@ -1,6 +1,9 @@
 require 'yaml'
 
 module ActiveCouch
+  class CouchString < String; end
+  class CouchArray < Array; end
+
   class Base
     class << self
       attr_accessor :connection
@@ -11,8 +14,8 @@ module ActiveCouch
         end
 
         class_eval <<-eval
-          def #{var_name}; @#{var_name} ||= "#{default_value}"; end
-          def #{var_name}=(val); @#{var_name} = val; end
+        def #{var_name}; @#{var_name} ||= CouchString.new("#{default_value}"); end
+        def #{var_name}=(val); @#{var_name} = CouchString.new(val); end
         eval
       end
       
@@ -41,8 +44,8 @@ module ActiveCouch
           end
 
           class_eval <<-eval
-            def #{sym}; @#{sym} ||= []; end
-            def #{sym}=(val); @#{sym} = val; end
+          def #{sym}; @#{sym} ||= CouchArray.new; end
+          def #{sym}=(val); @#{sym} = CouchArray.new(val); end
           eval
         end
       end
@@ -59,11 +62,52 @@ module ActiveCouch
             raise ConfigurationError, "Error parsing config file (either wrongly formatted or missing): #{spec}"
           end
         else
-          raise IllegalArgumentError, "Arguments must either be a hash or string"
+          raise ArgumentError, "Arguments must either be a hash or string"
         end
         
         @connection
       end
     end # end Class Methods
+
+    def attributes(options = {})
+      instance_variables_of_type(:attribute, options)
+    end
+
+    def associations(options = {})
+      instance_variables_of_type(:association, options)
+    end
+
+    # Logic borrowed generously from the Rails Jsonifier plugin written by Cheah Chu Yeow
+    # http://trac.codefront.net/jsonifier/
+    def to_json(options = nil)
+      hash = {}
+
+      attributes = self.attributes(:with => :values)
+      associations = self.associations(:with => :values)
+      
+      hash.merge!(Hash[*attributes])
+      hash.merge!(Hash[*associations])
+
+      hash.to_json
+    end
+
+    def from_json(json) # Should be assigning to self and returning self, for now just return the hash
+      ActiveSupport::JSON.decode(json)
+    end
+
+private
+    def instance_variables_of_type(var_type, options = {})
+      vars = self.instance_variables.collect{ |v| v.methodize }
+      vars_to_return = {}
+
+      vars.each do |att|
+        var_value = self.__send__(att)
+        if var_value.is_a?(var_type == :association ? CouchArray : CouchString)
+          vars_to_return[att] = var_value
+        end
+      end
+      
+      options[:with] == :values ? vars_to_return.flatten : vars_to_return.keys
+    end
   end # end Class Base
 end # end Module ActiveCouch

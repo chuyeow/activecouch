@@ -20,13 +20,13 @@ describe "An object which is a subclass of ActiveCouch::Base with some attribute
     @contact = PersonWithAttributes.new
     @dummy = PersonWithAttributes.new
     
-    @contact.first_name = "Stan"
+    @contact.first_name = "Seth"
     
     @person_with_attribs.first_name = "McLovin"
     @person_with_attribs.contacts << @contact
   end
   
   it "should respond to to_json method" do
-#    @person_with_attribs.to_json.should == "{\"contacts\": [{\"first_name\": \"Stan\"}], \"first_name\": \"McLovin\"}"
+    @person_with_attribs.to_json.should == "{\"contacts\": [{\"first_name\": \"Seth\"}], \"first_name\": \"McLovin\"}"
   end
 end
