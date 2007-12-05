@@ -12,7 +12,7 @@ module ActiveCouch
     # So..introducing flatten for Hash, so that arrays which are values (to keys)
     # are retained
     def flatten
-      (0...self.size).inject([]) {|result, x| result << self.keys[x]; result << self.values[x]}
+      (0...self.size).inject([]) {|k,v| k << self.keys[v]; k << self.values[v]}
     end  
   end      
 end
