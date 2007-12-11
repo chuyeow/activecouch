@@ -1,6 +1,6 @@
 module ActiveCouch
   class Base
-    def initialize
+    def initialize(params = {})
       # Object instance variable
       @attributes, @associations, klass_atts, klass_assocs = {}, {}, self.class.attributes, self.class.associations
       
@@ -21,6 +21,8 @@ module ActiveCouch
         # from the class
         self.instance_eval "def add_#{Inflector.singularize(k)}(val); associations[:#{k}].push(val); end"
       end
+      # Set any instance variables if any
+      params.each {|k,v| self.send("#{k}=", v) if @attributes.has_key?(k) }
     end
 
     def to_json

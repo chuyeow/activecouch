@@ -12,6 +12,7 @@ module ActiveCouch
   Object.class_eval do
     def get_class(name)
       # From 'The Ruby Way Second Edition' by Hal Fulton
+      # This is to get nested class for e.g. A::B::C
       name.split("::").inject(Object) {|x,y| x.const_get(y)}
     end
   end

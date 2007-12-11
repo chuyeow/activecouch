@@ -119,3 +119,16 @@ describe "A class which is a subclass of ActiveCouch::Base with a has_many assoc
     lambda{ @c.add_person(@a1) }.should raise_error(ActiveCouch::InvalidCouchTypeError)
   end
 end
+
+describe "An object instantiated from class which is a subclass of ActiveCouch::Base" do
+  before(:each) do
+    @p1 = Person.new(:name => "Seth")
+    @a3 = AgedPerson.new(:name => "Old Seth", :age => 50)
+  end
+  
+  it "should be able to initialize with a hash" do
+    @p1.name.should == "Seth"
+    @a3.name.should == "Old Seth"
+    @a3.age.should == 50
+  end
+end
