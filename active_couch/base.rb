@@ -4,8 +4,9 @@ module ActiveCouch
       # Object instance variable
       @attributes, @associations, klass_atts, klass_assocs = {}, {}, self.class.attributes, self.class.associations
       
-      self.instance_eval "def attributes; @attributes; end"
-      self.instance_eval "def associations; @associations; end"
+      %w(attributes associations).each do |m|
+        self.instance_eval "def #{m}; @#{m}; end"
+      end
       
       klass_atts.each_key do |k|
         @attributes[k] = klass_atts[k].clone
