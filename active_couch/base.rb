@@ -25,10 +25,11 @@ module ActiveCouch
 
     def to_json
       hash = {}
-
+      # @attributes and @associations are hashes. Get all
+      # attributes/associations and merge them into a single hash 
       attributes.each_value { |v| hash.merge!(v.to_hash) }
       associations.each_value { |v| hash.merge!(v.to_hash) }
-
+      # and by the Power of Grayskull, convert the hash to json
       hash.to_json
     end
 
@@ -55,7 +56,8 @@ module ActiveCouch
           subklass.instance_eval "def #{x}; @#{x}; end"
         end
       end
-      # TODO: from_json to be used
+      # TODO: from_json to be used in conjunction with the constructor for ActiveCouch::Base
+      # Constructor for ActiveCouch::Base must accept a hash of params
       def from_json
         
       end
