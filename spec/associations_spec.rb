@@ -1,14 +1,14 @@
 require File.dirname(__FILE__) + '/spec_helper.rb'
 
-class Person < ActiveCouch::Base; end
+class EmptyPerson < ActiveCouch::Base; end
 
 describe "An ActiveCouch::HasManyAssociation object initialized with a name and with class set to Person" do
   before(:each) do
-    @a = ActiveCouch::HasManyAssociation.new(:contacts, :class => Person)
+    @a = ActiveCouch::HasManyAssociation.new(:contacts, :class => EmptyPerson)
   end
   
   it "should set the klass to Person name must be contacts" do
-    @a.klass.should == Person
+    @a.klass.should == EmptyPerson
     @a.name.should == "contacts"
     @a.container.should == []
   end
@@ -16,12 +16,12 @@ end
 
 describe "An ActiveCouch::HasManyAssociation object initialized with only a name" do
   before(:each) do
-    @a = ActiveCouch::HasManyAssociation.new(:people)
+    @a = ActiveCouch::HasManyAssociation.new(:empty_people)
   end
   
   it "should set the klass to Person name must be people" do
-    @a.klass.should == Person
-    @a.name.should == "people"
+    @a.klass.should == EmptyPerson
+    @a.name.should == "empty_people"
     @a.container.should == []
   end
 end

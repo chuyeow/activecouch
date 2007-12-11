@@ -1,11 +1,11 @@
 module ActiveCouch
   class Attribute
-    attr_reader :klass, :value
+    attr_reader :name, :klass, :value
     TYPES = { :decimal => Float, :text => String, :number => Integer }
     DEFAULTS = {:decimal => 0.0, :text => "", :number => 0}
     
-    def initialize(options = {})
-      klass = String; value = ""
+    def initialize(name, options = {})
+      klass, value = String, ""
       # Check for types supported
       if options.has_key?(:which_is)
         type = options[:which_is]
@@ -22,10 +22,8 @@ module ActiveCouch
           raise InvalidCouchTypeError, "Default value provided does not match the type of #{klass.to_s}"
         end
       end
-      
       # Set the value, defaults to empty String
-      @value = value
-      @klass = klass
+      @value, @klass, @name = value, klass, name.to_s
     end
     
     def value=(val)
@@ -34,6 +32,10 @@ module ActiveCouch
       end
       # Set the value if value matches type
       @value = val
-    end    
+    end
+    
+    def to_hash
+      { @name => @value }
+    end
   end # End class CouchAttribute  
 end # End module ActiveCouch

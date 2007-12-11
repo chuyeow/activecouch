@@ -24,5 +24,10 @@ module ActiveCouch
     def pop
       @container.pop
     end
+    
+    def to_hash
+      { @name => @container.collect{ |x| x.to_json } }
+    end
+    
   end
 end

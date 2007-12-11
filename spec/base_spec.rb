@@ -68,7 +68,8 @@ describe "A class which is a subclass of ActiveCouch::Base with a default numeri
 
   it "should have an instance variable called attributes which is a Hash with the keys being :name, :age" do
     AgedPerson.attributes.class.should == Hash
-    AgedPerson.attributes.keys.should == [:name, :age]
+    AgedPerson.attributes.keys.index(:name).should_not == nil
+    AgedPerson.attributes.keys.index(:age).should_not == nil
   end
 
   it "should have methods called name and age which return the values of the variables name and age respectively" do

@@ -14,7 +14,7 @@ module ActiveCouch
       end
       
       klass_assocs.each_key do |k|
-        @associations[k] = ActiveCouch::HasManyAssociation.new(klass_assocs[k].name, :class => klass_assocs[k].klass)
+        @associations[k] = HasManyAssociation.new(klass_assocs[k].name, :class => klass_assocs[k].klass)
         self.instance_eval "def #{k}; associations[:#{k}].container; end"
         # If you have has_many :people, this will add a method called add_person to the object instantiated
         # from the class
@@ -22,12 +22,21 @@ module ActiveCouch
       end
     end
 
+    def to_json
+      hash = {}
+
+      attributes.each_value { |v| hash.merge!(v.to_hash) }
+      associations.each_value { |v| hash.merge!(v.to_hash) }
+
+      hash.to_json
+    end
+
     class << self # Class methods
       def has(name, options = {})
         unless name.is_a?(String) || name.is_a?(Symbol)
           raise ArgumentError, "#{name} is neither a String nor a Symbol"
         end
-        @attributes[name] = Attribute.new(options)  
+        @attributes[name] = Attribute.new(name, options)  
       end
 
       def has_many(name, options = {})
@@ -45,7 +54,11 @@ module ActiveCouch
         
         subklass.instance_eval "def attributes; @attributes; end"
         subklass.instance_eval "def associations; @associations; end"
-      end      
+      end
+      # TODO: from_json to be used
+      def from_json
+        
+      end
     end # End class methods
   end # End class Base
 end # End module ActiveCouch
