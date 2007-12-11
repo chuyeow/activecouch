@@ -1,74 +1,127 @@
 require File.dirname(__FILE__) + '/spec_helper.rb'
 
-class SimpleActiveCouch < ActiveCouch::Base; end
-class Person < ActiveCouch::Base
-  has :name
-end
-class PersonWithName < ActiveCouch::Base
-  has :name, :with_default_value => "McLovin"
-end
-class PersonWithTelephones < ActiveCouch::Base
-  has_many :telephones
-end
-
-describe "A subclass of ActiveCouch::Base" do
+describe "An ActiveCouch::Attribute object initialized with no options" do
   before(:each) do
-    @subclass = SimpleActiveCouch
-  end
-
-  it "should raise an ArgumentError when sent #has with an argument that is not a Symbol or String" do
-    lambda { @subclass.has(:foo, []) }.should raise_error(ArgumentError)
-  end
-
-  it "should define attribute accessors when sent #has with a symbol as parameter" do
-    @subclass.has(:name)
-
-    @subclass.instance_methods.should include('name', 'name=')
-  end
-
-  it "should set the empty string as the attribute value by default when sent #has with no :with_default_value option" do
-    @subclass.has(:name)
-
-    @subclass.new.name.should == ''
-  end
-end
-
-describe "An object created as a subclass of ActiveCouch::Base with one text attribute" do
-  before(:each) do
-    @person = Person.new
-  end
-
-  it "should be able to assign a value to the instance variable defined using the has class method" do
-    @person.name.should == ""
-    @person.name = "John Doe"
-    @person.name.should == "John Doe"
-  end
-end
-
-describe "An object created as a subclass of ActiveCouch::Base with one text attribute (with default value set)" do
-  before(:each) do
-    @person_with_name = PersonWithName.new
+    @att = ActiveCouch::Attribute.new
   end
   
-  it "should create an instance variable with the correct default value set when sent #has with a symbol as parameter" do
-    @person_with_name.name.should == "McLovin"
+  it "should set the type to String and value to an empty String" do
+    @att.klass.should == String
+    @att.value.should == ""
   end
 end
 
-describe "An object created as a subclass of ActiveCouch::Base with one array attribute" do
+describe "An ActiveCouch::Attribute object initialized with a type :text but no default value" do
   before(:each) do
-    @person_with_tels = PersonWithTelephones.new
+    @att = ActiveCouch::Attribute.new(:which_is => :text)
   end
   
-  it "should create an instance variable which is an empty array" do
-    @person_with_tels.telephones.class.should == ActiveCouch::CouchArray
-    @person_with_tels.telephones.size.should == 0
+  it "should set the type to String and value to an empty String" do
+    @att.klass.should == String
+    @att.value.should == ""
+  end
+end
+
+describe "An ActiveCouch::Attribute object initialized with a type :decimal but no default value" do
+  before(:each) do
+    @att = ActiveCouch::Attribute.new(:which_is => :decimal)
   end
   
-  it "should be able to add a value to the array" do
-    @person_with_tels.telephones.size.should == 0
-    @person_with_tels.telephones << "123-456-789"
-    @person_with_tels.telephones.first.should == "123-456-789"
-    @person_with_tels.telephones.size.should == 1
+  it "should set the type to Float and value to 0.0" do
+    @att.klass.should == Float
+    @att.value.should == 0.0
+  end
+end
+
+describe "An ActiveCouch::Attribute object initialized with a type :number but no default value" do
+  before(:each) do
+    @att = ActiveCouch::Attribute.new(:which_is => :number)
+  end
+  
+  it "should set the type to Integer and value to 0" do
+    @att.klass.should == Integer
+    @att.value.should == 0
+  end
+end
+
+describe "An ActiveCouch::Attribute object initialized with type :text and with a default value" do
+  before(:each) do
+    @att = ActiveCouch::Attribute.new(:which_is => :text, :with_default_value => "Hotel")
+  end
+  
+  it "should set the type to String and value to Hotel" do
+    @att.klass.should == String
+    @att.value.should == "Hotel"
+  end
+end
+
+describe "An ActiveCouch::Attribute object initialized with type :decimal and with a default value" do
+  before(:each) do
+    @att = ActiveCouch::Attribute.new(:which_is => :decimal, :with_default_value => 4.5)
+  end
+  
+  it "should set the type to Float and value to 4.5" do
+    @att.klass.should == Float
+    @att.value.should == 4.5
+  end
+end
+
+describe "An ActiveCouch::Attribute object initialized with type :number and with a default value" do
+  before(:each) do
+    @att = ActiveCouch::Attribute.new(:which_is => :number, :with_default_value => 100)
+  end
+  
+  it "should set the klass to Integer and value to 100" do
+    @att.klass.should == Integer
+    @att.value.should == 100
+  end
+end
+
+describe "An ActiveCouch::Attribute object initialized with a certain type and with a value which is not of that type" do
+  
+  it "should raise an InvalidCouchTypeError with type String and value which is not string" do
+    lambda { ActiveCouch::Attribute.new(:which_is => :text, :with_default_value => 100) }.should raise_error(ActiveCouch::InvalidCouchTypeError)
+  end
+
+  it "should raise an InvalidCouchTypeError with type Number and value which is not Number" do
+    lambda { ActiveCouch::Attribute.new(:which_is => :number, :with_default_value => "abc") }.should raise_error(ActiveCouch::InvalidCouchTypeError)
+  end
+
+  it "should raise an InvalidCouchTypeError with type Number and value which is not Number" do
+    lambda { ActiveCouch::Attribute.new(:which_is => :number, :with_default_value => 3.0) }.should raise_error(ActiveCouch::InvalidCouchTypeError)
+  end
+
+  it "should raise an InvalidCouchTypeError with type Decimal and value which is not Decimal" do
+    lambda { ActiveCouch::Attribute.new(:which_is => :number, :with_default_value => []) }.should raise_error(ActiveCouch::InvalidCouchTypeError)
+  end
+  
+  it "should raise an InvalidCouchTypeError for an unsupported type" do
+    lambda { ActiveCouch::Attribute.new(:which_is => :array) }.should raise_error(ActiveCouch::InvalidCouchTypeError)
+  end
+  
+end
+
+describe "An ActiveCouch::Attribute object initialized with a certain type must be able to assign values" do
+  before(:each) do
+    @a = ActiveCouch::Attribute.new(:which_is => :text)
+    @b = ActiveCouch::Attribute.new(:which_is => :number)
+    @c = ActiveCouch::Attribute.new(:which_is => :decimal)
+  end
+  
+  it "should set the value correctly if it is of the right type" do
+    @a.value = "McLovin"
+    @a.value.should == "McLovin"
+    
+    @b.value = 100
+    @b.value.should == 100
+    
+    @c.value = 5.4
+    @c.value.should == 5.4
+  end
+  
+  it "should raise an exception if the type is not String" do
+    lambda { @a.value = 100 }.should raise_error(ActiveCouch::InvalidCouchTypeError)
+    lambda { @b.value = "a" }.should raise_error(ActiveCouch::InvalidCouchTypeError)
+    lambda { @c.value = [] }.should raise_error(ActiveCouch::InvalidCouchTypeError)    
   end
 end

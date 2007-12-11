@@ -6,12 +6,11 @@ Preliminarily,
 - callbacks and observers (for example when to call upon saving of a new document)
 
 * Nodes supported:
-- text (E.g. has :name)
+- String, Integer, Float (E.g. has :name)
 - array (E.g. has_many :airports)
 
 Nice to have extensions:
 - schema.rb which will contain schemas for ActiveCouch documents
 - Migrations to change document schemas
 
-Pre-requisites:
 - Uses RSpec (http://rspec.rubyforge.org, To install use gem install rspec)

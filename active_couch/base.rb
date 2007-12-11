@@ -1,113 +1,51 @@
-require 'yaml'
-
 module ActiveCouch
-  class CouchString < String; end
-  class CouchArray < Array; end
-
   class Base
-    class << self
-      attr_accessor :connection
+    def initialize
+      # Object instance variable
+      @attributes, @associations, klass_atts, klass_assocs = {}, {}, self.class.attributes, self.class.associations
       
-      def define_instance_variable(var_name, default_value)
-        unless var_name.is_a?(Symbol) || var_name.is_a?(String)
-          raise ArgumentError, "#{var_name.inspect} is neither a String nor a Symbol"
-        end
-
-        class_eval <<-eval
-        def #{var_name}; @#{var_name} ||= CouchString.new("#{default_value}"); end
-        def #{var_name}=(val); @#{var_name} = CouchString.new(val); end
-        eval
+      self.instance_eval "def attributes; @attributes; end"
+      self.instance_eval "def associations; @associations; end"
+      
+      klass_atts.each_key do |k|
+        @attributes[k] = klass_atts[k].clone
+        self.instance_eval "def #{k}; attributes[:#{k}].value; end"
+        self.instance_eval "def #{k}=(val); attributes[:#{k}].value = val; end"
       end
       
-      def has(*args)
-        # has can contain a series of symbols each of which will correspond to a text node
-        # in the ActiveCouch::Base object
-        # For e.g. has_one :name, :age, :sex, :location will define the instance variables 
-        # @name, @age, @sex, @location with the default value of an empty string
-        default_value = ""
+      klass_assocs.each_key do |k|
+        @associations[k] = ActiveCouch::HasManyAssociation.new(klass_assocs[k].name, :class => klass_assocs[k].klass)
+        self.instance_eval "def #{k}; associations[:#{k}].container; end"
+        # If you have has_many :people, this will add a method called add_person to the object instantiated
+        # from the class
+        self.instance_eval "def add_#{Inflector.singularize(k)}(val); associations[:#{k}].push(val); end"
+      end
+    end
+
+    class << self # Class methods
+      def has(name, options = {})
+        unless name.is_a?(String) || name.is_a?(Symbol)
+          raise ArgumentError, "#{name} is neither a String nor a Symbol"
+        end
+        @attributes[name] = Attribute.new(options)  
+      end
+
+      def has_many(name, options = {})
+        unless name.is_a?(String) || name.is_a?(Symbol)
+          raise ArgumentError, "#{name} is neither a String nor a Symbol"
+        end
+        @associations[name] = HasManyAssociation.new(name, options)
+      end
+      
+      # All classes inheriting from ActiveCouch::Base will have
+      # a class instance variable called @attributes
+      def inherited(subklass)
+        subklass.instance_variable_set "@attributes", {}
+        subklass.instance_variable_set "@associations", {}
         
-        if args.last.is_a?(Hash)
-          options = args.pop
-          default_value = options[:with_default_value] if options.has_key?(:with_default_value)
-        end
-        args.each { |sym| define_instance_variable(sym, default_value) }
-      end
-      
-      def has_many(*args)
-        # has_many can contain a series of symbols each of which will correspond to an array node
-        # in the ActiveCouch::Base object
-        # For e.g. has_many :airports will define the instance variable
-        # @airports with the default value of an empty array
-        args.each do |sym|
-          unless sym.is_a?(Symbol) || sym.is_a?(String)
-            raise ArgumentError, "#{sym.inspect} is neither a String nor a Symbol"
-          end
-
-          class_eval <<-eval
-          def #{sym}; @#{sym} ||= CouchArray.new; end
-          def #{sym}=(val); @#{sym} = CouchArray.new(val); end
-          eval
-        end
-      end
-      
-      def establish_connection(spec = nil)
-        spec = 'config/couch.yml' if spec.nil? # Default to a file path if spec is nil
-        
-        if spec.is_a?(Hash)
-          @connection = Connection.new(spec)
-        elsif spec.is_a?(String)
-          begin  
-          @connection = Connection.new(YAML::load(File.open(spec)))
-          rescue
-            raise ConfigurationError, "Error parsing config file (either wrongly formatted or missing): #{spec}"
-          end
-        else
-          raise ArgumentError, "Arguments must either be a hash or string"
-        end
-        
-        @connection
-      end
-    end # end Class Methods
-
-    def attributes(options = {})
-      instance_variables_of_type(:attribute, options)
-    end
-
-    def associations(options = {})
-      instance_variables_of_type(:association, options)
-    end
-
-    # Logic borrowed generously from the Rails Jsonifier plugin written by Cheah Chu Yeow
-    # http://trac.codefront.net/jsonifier/
-    def to_json(options = nil)
-      hash = {}
-
-      attributes = self.attributes(:with => :values)
-      associations = self.associations(:with => :values)
-      
-      hash.merge!(Hash[*attributes])
-      hash.merge!(Hash[*associations])
-
-      hash.to_json
-    end
-
-    def from_json(json) # Should be assigning to self and returning self, for now just return the hash
-      ActiveSupport::JSON.decode(json)
-    end
-
-private
-    def instance_variables_of_type(var_type, options = {})
-      vars = self.instance_variables.collect{ |v| v.methodize }
-      vars_to_return = {}
-
-      vars.each do |att|
-        var_value = self.__send__(att)
-        if var_value.is_a?(var_type == :association ? CouchArray : CouchString)
-          vars_to_return[att] = var_value
-        end
-      end
-      
-      options[:with] == :values ? vars_to_return.flatten : vars_to_return.keys
-    end
-  end # end Class Base
-end # end Module ActiveCouch
+        subklass.instance_eval "def attributes; @attributes; end"
+        subklass.instance_eval "def associations; @associations; end"
+      end      
+    end # End class methods
+  end # End class Base
+end # End module ActiveCouch

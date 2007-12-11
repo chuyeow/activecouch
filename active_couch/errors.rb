@@ -4,4 +4,11 @@ module ActiveCouch
 
   class ConfigurationError < ActiveCouchError #:nodoc:
   end
+  
+  class InvalidCouchTypeError < ActiveCouchError #:nodoc:
+  end
+  
+  class AttributeMissingError < ActiveCouchError #:nodoc:
+  end
+  
 end
