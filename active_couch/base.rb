@@ -50,11 +50,10 @@ module ActiveCouch
       # All classes inheriting from ActiveCouch::Base will have
       # a class instance variable called @attributes
       def inherited(subklass)
-        subklass.instance_variable_set "@attributes", {}
-        subklass.instance_variable_set "@associations", {}
-        
-        subklass.instance_eval "def attributes; @attributes; end"
-        subklass.instance_eval "def associations; @associations; end"
+        %w(attributes associations).each do |x|
+          subklass.instance_variable_set "@#{x}", {}
+          subklass.instance_eval "def #{x}; @#{x}; end"
+        end
       end
       # TODO: from_json to be used
       def from_json
