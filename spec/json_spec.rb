@@ -37,11 +37,9 @@ end
 describe "An object instantiated from a subclass of ActiveCouch::Base with a has_many association" do
   before(:each) do
     @c = CrazyPerson.new
-    @h1 = Hospital.new
-    @h1.name = "Crazy Hospital 1"
     
-    @h2 = Hospital.new
-    @h2.name = "Crazy Hospital 2"
+    @h1 = Hospital.new(:name => "Crazy Hospital 1")
+    @h2 = Hospital.new(:name => "Crazy Hospital 2")
     
     @c.add_hospital(@h1)
     @c.add_hospital(@h2)
