@@ -136,6 +136,8 @@ module ActiveCouch
         end
       end
 
+      # TODO: 
+      #  - Raise exception if json can't be parsed or if parameter passed is incorrect
       def from_json(json)
         hash = JSON.parse(json)
         # Create new based on parsed 

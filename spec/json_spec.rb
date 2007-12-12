@@ -53,7 +53,7 @@ end
 describe "A subclass of ActiveCouch::Base with many attributes" do
   
   it "should have the from_json method" do
-    Hotel.should respond_to(:from_json)
+    ActiveCouch::Base.should respond_to(:from_json)
   end
   
   it "should instantiate an object when sent the from_json method with valid json as a parameter" do
@@ -63,5 +63,18 @@ describe "A subclass of ActiveCouch::Base with many attributes" do
     h.name.should == "Swissotel The Stamford"
     h.rooms.should == 200
     h.star_rating.should == 4.0
+  end
+  
+  it "should instantiate an object when sent the from_json method with valid JSON (containing associations) as a parameter" do
+    crazy = CrazyPerson.from_json('{"name":"Crazed McLovin","hospitals":[{"name":"Crazy Hospital 1"},{"name":"Crazy Hospital 2"}]}')
+
+    crazy.name == "Crazed McLovin"
+    crazy.hospitals.size.should == 2
+    
+    hospitals = crazy.hospitals.collect{|h| h.name }
+    hospitals.sort!
+    
+    hospitals.first.should == 'Crazy Hospital 1'
+    hospitals.last.should == 'Crazy Hospital 2'
   end
 end
