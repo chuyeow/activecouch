@@ -17,6 +17,15 @@ class Contact < ActiveCouch::Base
   has_many :people
 end
 
+class Comment < ActiveCouch::Base
+  has :body
+end
+
+class Blog < ActiveCouch::Base
+  has :title
+  has_many :comments
+end
+
 describe "A class which is a subclass of ActiveCouch::Base" do
   before(:each) do
     @p = Person.new
@@ -122,15 +131,30 @@ end
 
 describe "An object instantiated from class which is a subclass of ActiveCouch::Base" do
   before(:each) do
-    @p1 = Person.new(:name => "Seth")
-    @a3 = AgedPerson.new(:name => "Old Seth", :age => 50)
+    @comment1 = Comment.new(:body => "I can haz redbull?")
+    @comment2 = Comment.new(:body => 'k thx bai')
+    @blog = Blog.new(:title => 'Lolcats Primer', :comments => [@comment1, @comment2])
+    @blog1 = Blog.new(:title => 'Lolcats Primer The Sequel', :comments => [{:body => 'can'}, {:body => 'haz'}])
   end
   
-  it "should be able to initialize with a hash" do
-    @p1.name.should == "Seth"
-    @a3.name.should == "Old Seth"
-    @a3.age.should == 50
+  it "should be able to initialize with a hash which contains descendents of ActiveCouch::Base" do
+    @comment1.body.should == "I can haz redbull?"
+    @comment2.body.should == "k thx bai"
+    
+    @blog.title.should == 'Lolcats Primer'
+    @blog.comments.should == [@comment1, @comment2]
   end
+  
+  it "should be able to initialize from a hash which contains only Strings" do
+    @blog1.title.should == 'Lolcats Primer The Sequel'
+    
+    comment_bodies = @blog1.comments.collect{|c| c.body }
+    comment_bodies.sort!
+    
+    comment_bodies.first.should == 'can'
+    comment_bodies.last.should == 'haz'
+  end
+  
 end
 
 describe "A direct subclass of ActiveCouch::Base" do

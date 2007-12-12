@@ -9,7 +9,7 @@ module ActiveCouch
       end
       
       klass_atts.each_key do |k|
-        @attributes[k] = klass_atts[k].clone
+        @attributes[k] = klass_atts[k].dup
         self.instance_eval "def #{k}; attributes[:#{k}].value; end"
         self.instance_eval "def #{k}=(val); attributes[:#{k}].value = val; end"
       end
@@ -22,10 +22,7 @@ module ActiveCouch
         self.instance_eval "def add_#{Inflector.singularize(k)}(val); associations[:#{k}].push(val); end"
       end
       # Set any instance variables if any, which are present in the params hash
-      params.each do |k,v|
-        k = k.intern if k.is_a?(String)
-        self.send("#{k}=", v) if @attributes.has_key?(k)
-      end
+      from_hash(params)
     end
 
     def to_json
@@ -37,6 +34,28 @@ module ActiveCouch
       # and by the Power of Grayskull, convert the hash to json
 
       hash.to_json
+    end
+
+    def from_hash(hash)
+      # TODO: 
+      #  - Clean this up. Doesn't look very nice
+      #  - Raise errors if there is a type mismatch
+      hash.each do |k,v|
+        k = k.intern if k.is_a?(String)
+        if v.is_a?(Array) # This means this is a has_many association
+          unless (assoc = @associations[k]).nil?
+            name, child_klass = assoc.name, assoc.klass
+            v.each do |child|
+              child.is_a?(Hash) ? child_obj = child_klass.new(child) : child_obj = child
+              self.send "add_#{Inflector.singularize(name)}", child_obj
+            end
+          end
+        elsif v.is_a?(Hash) # This means this is a has_one association (which we might add later)
+          # Do nothing for now. More later
+        else # This means this is a normal attribute
+          self.send("#{k}=", v) if @attributes.has_key?(k)
+        end
+      end
     end
 
     class << self # Class methods
@@ -119,10 +138,8 @@ module ActiveCouch
 
       def from_json(json)
         hash = JSON.parse(json)
-        attributes = hash.reject{ |k,v| v.is_a?(Array) }
-        associations = hash.reject{ |k,v| !v.is_a?(Array) }
-        
-        self.new(attributes)
+        # Create new based on parsed 
+        self.new(hash)
       end
 
       # Defines an "attribute" method. A new (class) method will be created with the
