@@ -39,7 +39,7 @@ module ActiveCouch
     def from_hash(hash)
       # TODO: 
       #  - Clean this up. Doesn't look very nice
-      #  - Raise errors if there is a type mismatch
+      #  - Raise errors if attribute/association is not present
       hash.each do |k,v|
         k = k.intern if k.is_a?(String)
         if v.is_a?(Array) # This means this is a has_many association
