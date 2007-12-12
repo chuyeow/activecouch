@@ -1,3 +1,5 @@
+# TODO Consider implementing Enumerable semantics.
+
 module ActiveCouch
   class HasManyAssociation
     attr_accessor :name, :klass, :container
@@ -16,7 +18,7 @@ module ActiveCouch
 
     def push(obj)
       unless obj.is_a?(klass)
-        raise InvalidCouchTypeError, "The object that you are trying to add is not a #{klass.to_s}"
+        raise InvalidCouchTypeError, "The object that you are trying to add is not a #{klass}"
       end
       @container << obj
     end
@@ -26,7 +28,7 @@ module ActiveCouch
     end
     
     def to_hash
-      { @name => @container.collect{ |x| x.to_json } }
+      { @name => @container }
     end
     
   end

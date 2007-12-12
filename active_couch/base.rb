@@ -35,6 +35,7 @@ module ActiveCouch
       attributes.each_value { |v| hash.merge!(v.to_hash) }
       associations.each_value { |v| hash.merge!(v.to_hash) }
       # and by the Power of Grayskull, convert the hash to json
+
       hash.to_json
     end
 

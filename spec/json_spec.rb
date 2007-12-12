@@ -21,16 +21,16 @@ describe "An object instantiated from a subclass of ActiveCouch::Base with many 
   end
 
   it "should have to the to_json method" do
-    @h.methods.index('to_json').should_not == nil
+    @h.should respond_to(:to_json)
   end
 
   it "should produce valid JSON output when sent the to_json method" do
-    @h.to_json.should == "{\"name\":\"Swissotel The Stamford\",\"rooms\":100,\"star_rating\":5.0}"
+    @h.to_json.should == '{"name":"Swissotel The Stamford","rooms":100,"star_rating":5.0}'
   end
   
   it "should produce valid JSON output when an attribute has been changed and the to_json method is sent" do
     @h.rooms = 200
-    @h.to_json.should == "{\"name\":\"Swissotel The Stamford\",\"rooms\":200,\"star_rating\":5.0}"
+    @h.to_json.should == '{"name":"Swissotel The Stamford","rooms":200,"star_rating":5.0}'
   end
 end
 
@@ -46,7 +46,7 @@ describe "An object instantiated from a subclass of ActiveCouch::Base with a has
   end
   
   it "should produce valid JSON when sent the to_json method" do
-    @c.to_json.should == "{\"name\":\"Crazed McLovin\",\"hospitals\":[\"{\\\"name\\\":\\\"Crazy Hospital 1\\\"}\",\"{\\\"name\\\":\\\"Crazy Hospital 2\\\"}\"]}"
+    @c.to_json.should == '{"name":"Crazed McLovin","hospitals":[{"name":"Crazy Hospital 1"},{"name":"Crazy Hospital 2"}]}'
   end
 end
 
