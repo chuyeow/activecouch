@@ -2,9 +2,10 @@ module ActiveCouch
   class Base
     def initialize(params = {})
       # Object instance variable
-      @attributes, @associations, klass_atts, klass_assocs = {}, {}, self.class.attributes, self.class.associations
-      
-      %w(attributes associations).each do |m|
+      @attributes, @associations, @connection, klass_atts, klass_assocs = {}, {}, self.class.connection, self.class.attributes, self.class.associations
+      # ActiveCouch::Connection object will be readable in every 
+      # object instantiated from a subclass of ActiveCouch::Base
+      %w(attributes associations connection).each do |m|
         self.instance_eval "def #{m}; @#{m}; end"
       end
       
@@ -113,6 +114,10 @@ module ActiveCouch
       end
       alias :database_name= :set_database_name
 
+      def establish_connection(options = {})
+        @connection = Connection.new(options)
+      end
+
       def has(name, options = {})
         unless name.is_a?(String) || name.is_a?(Symbol)
           raise ArgumentError, "#{name} is neither a String nor a Symbol"
@@ -130,7 +135,7 @@ module ActiveCouch
       # All classes inheriting from ActiveCouch::Base will have
       # a class instance variable called @attributes
       def inherited(subklass)
-        %w(attributes associations).each do |x|
+        %w(attributes associations connection).each do |x|
           subklass.instance_variable_set "@#{x}", {}
           subklass.instance_eval "def #{x}; @#{x}; end"
         end

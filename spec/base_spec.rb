@@ -157,6 +157,49 @@ describe "An object instantiated from class which is a subclass of ActiveCouch::
   
 end
 
+
+describe "A subclass of ActiveCouch::Base object which has called establish_connection" do
+  before(:each) do
+    class Cat < ActiveCouch::Base
+      establish_connection :server => '192.168.0.150', :port => '7777'
+    end
+  end  
+
+  after(:each) do
+    # Remove class definition so we can start fresh in each spec.
+    Object.send(:remove_const, :Cat)
+  end
+    
+  it "should have the method connection" do
+    Cat.methods.index('connection').should_not == nil
+    Cat.connection.server.should == '192.168.0.150'
+    Cat.connection.port.should == '7777'
+  end
+end
+
+describe "An object instantiated from a subclass of ActiveCouch::Base which has called establish_connection" do
+  before(:each) do
+    class Cat < ActiveCouch::Base
+      establish_connection :server => '192.168.0.150', :port => '7777'
+    end
+    @cat = Cat.new
+  end
+  
+  after(:each) do
+    # Remove class definition so we can start fresh in each spec.
+    Object.send(:remove_const, :Cat)
+  end
+  
+  
+  it "should have the method connection in objects instantiated from the subclass" do
+    @cat.methods.index('connection').should_not == nil
+    @cat.connection.server.should == '192.168.0.150'
+    @cat.connection.port.should == '7777'
+  end
+end
+  
+
+
 describe "A direct subclass of ActiveCouch::Base" do
 
   before(:each) do

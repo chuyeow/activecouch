@@ -9,7 +9,6 @@ def initialize_connection(spec = nil)
   return connection, error
 end
 
-
 describe ActiveCouch::Connection do
   before(:each) do
     @connection, @error = initialize_connection(:server => '192.168.0.150', :port => '7777')
@@ -39,8 +38,9 @@ describe "An ActiveCouch::Connection object instantiated with only the server op
   end
   
   it "should raise an error and return nil" do
-    @connection.should == nil
-    @error.should == "Configuration hash must contain keys for server and port"
+    @connection.server.should == '192.168.0.150'
+    @connection.port.should == '5984'
+    @error.should == nil
   end
 end
 
