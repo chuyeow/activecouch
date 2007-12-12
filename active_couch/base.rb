@@ -22,7 +22,10 @@ module ActiveCouch
         self.instance_eval "def add_#{Inflector.singularize(k)}(val); associations[:#{k}].push(val); end"
       end
       # Set any instance variables if any, which are present in the params hash
-      params.each {|k,v| self.send("#{k}=", v) if @attributes.has_key?(k)}
+      params.each do |k,v|
+        k = k.intern if k.is_a?(String)
+        self.send("#{k}=", v) if @attributes.has_key?(k)
+      end
     end
 
     def to_json
@@ -58,10 +61,13 @@ module ActiveCouch
           subklass.instance_eval "def #{x}; @#{x}; end"
         end
       end
-      # TODO: from_json to be used in conjunction with the constructor for ActiveCouch::Base
-      # Constructor for ActiveCouch::Base must accept a hash of params
-      def from_json
+
+      def from_json(json)
+        hash = JSON.parse(json)
+        attributes = hash.reject{ |k,v| v.is_a?(Array) }
+        associations = hash.reject{ |k,v| !v.is_a?(Array) }
         
+        self.new(attributes)
       end
     end # End class methods
   end # End class Base

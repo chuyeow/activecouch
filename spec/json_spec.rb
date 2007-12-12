@@ -49,3 +49,19 @@ describe "An object instantiated from a subclass of ActiveCouch::Base with a has
     @c.to_json.should == "{\"name\":\"Crazed McLovin\",\"hospitals\":[\"{\\\"name\\\":\\\"Crazy Hospital 1\\\"}\",\"{\\\"name\\\":\\\"Crazy Hospital 2\\\"}\"]}"
   end
 end
+
+describe "A subclass of ActiveCouch::Base with many attributes" do
+  
+  it "should have the from_json method" do
+    Hotel.methods.index('from_json').should_not == nil
+  end
+  
+  it "should instantiate an object when sent the from_json method with valid json as a parameter" do
+    h = Hotel.from_json("{\"name\":\"Swissotel The Stamford\",\"rooms\":200,\"star_rating\":4.0}")
+    h.class.should == Hotel
+    # Check whether all attributes are set correctly
+    h.name.should == "Swissotel The Stamford"
+    h.rooms.should == 200
+    h.star_rating.should == 4.0
+  end
+end
