@@ -40,6 +40,60 @@ module ActiveCouch
     end
 
     class << self # Class methods
+
+      def base_class
+        class_of_active_couch_descendant(self)
+      end
+
+      # Returns the CouchDB database name that's backing this model. The database name is guessed from the name of the
+      # class somewhat similar to ActiveRecord conventions.
+      #
+      # Examples:
+      #   class Invoice < ActiveCouch::Base; end;
+      #   file                  class               database_name
+      #   invoice.rb            Invoice             invoices
+      #
+      #   class Invoice < ActiveCouch::Base; class Lineitem < ActiveCouch::Base; end; end;
+      #   file                  class               database_name
+      #   invoice.rb            Invoice::Lineitem   invoice_lineitems
+      #
+      #   module Invoice; class Lineitem < ActiveCouch::Base; end; end;
+      #   file                  class               database_name
+      #   invoice/lineitem.rb   Invoice::Lineitem   lineitems
+      #
+      # You can override this method or use <tt>set_database_name</tt> to override this class method to allow for names
+      # that can't be inferred.
+      def database_name
+        base = base_class
+        name = (unless self == base
+          base.database_name
+        else
+          # Nested classes are prefixed with singular parent database name.
+          if parent < ActiveCouch::Base
+            contained = Inflector.singularize(parent.database_name)
+            contained << '_'
+          end
+          "#{contained}#{Inflector.underscore(Inflector.demodulize(Inflector.pluralize(base.name)))}"
+        end)
+        set_database_name(name)
+        name
+      end
+
+      # Sets the database name to the given value, or (if the value is nil or false) to the value returned by the
+      # given block. Useful for setting database names that can't be automatically inferred from the class name.
+      #
+      # This method is aliased as <tt>database_name=</tt>.
+      #
+      # Example:
+      #
+      #   class Post < ActiveCouch::Base
+      #     set_database_name 'legacy_posts'
+      #   end
+      def set_database_name(database = nil, &block)
+        define_attr_method(:database_name, database, &block)
+      end
+      alias :database_name= :set_database_name
+
       def has(name, options = {})
         unless name.is_a?(String) || name.is_a?(Symbol)
           raise ArgumentError, "#{name} is neither a String nor a Symbol"
@@ -70,6 +124,48 @@ module ActiveCouch
         
         self.new(attributes)
       end
+
+      # Defines an "attribute" method. A new (class) method will be created with the
+      # given name. If a value is specified, the new method will
+      # return that value (as a string). Otherwise, the given block
+      # will be used to compute the value of the method.
+      #
+      # The original method, if it exists, will be aliased, with the
+      # new name being
+      # prefixed with "original_". This allows the new method to
+      # access the original value.
+      #
+      # This method is stolen from ActiveRecord.
+      #
+      # Example:
+      #
+      #   class Foo < ActiveCouch::Base
+      #     define_attr_method :database_name, 'foo'
+      #     # OR
+      #     define_attr_method(:database_name) do
+      #       original_database_name + '_legacy'
+      #     end
+      #   end
+      def define_attr_method(name, value = nil, &block)
+        metaclass.send(:alias_method, "original_#{name}", name)
+        if block_given?
+          meta_def name, &block
+        else
+          metaclass.class_eval "def #{name}; #{value.to_s.inspect}; end"
+        end
+      end
+
+      private
+        # Returns the class descending directly from ActiveCouch in the inheritance hierarchy.
+        def class_of_active_couch_descendant(klass)
+          if klass.superclass == Base
+            klass
+          elsif klass.superclass.nil?
+            raise ActiveCouchError, "#{name} doesn't belong in a hierarchy descending from ActiveCouch"
+          else
+            class_of_active_couch_descendant(klass.superclass)
+          end
+        end
     end # End class methods
   end # End class Base
 end # End module ActiveCouch

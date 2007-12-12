@@ -28,12 +28,12 @@ describe "A class which is a subclass of ActiveCouch::Base" do
   end
   
   it "should have a method called name which returns the value of the variable name" do
-    @p.methods.index('name').should_not == nil
+    @p.should respond_to(:name)
     @p.name.should == ""
   end
   
   it "should have a method called name= which should let you set the instance variable name" do
-    @p.methods.index('name=').should_not == nil
+    @p.should respond_to(:name=)
     @p.name = "McLovin"
     @p.name.should == "McLovin"
   end
@@ -50,12 +50,12 @@ describe "A class which is a subclass of ActiveCouch::Base with a default value 
   end
   
   it "should have a method called name which returns the value of the variable name" do
-    @n.methods.index('name').should_not == nil
+    @n.should respond_to(:name)
     @n.name.should == "McLovin"
   end
   
   it "should have a method called name= which should let you set the instance variable name" do
-    @n.methods.index('name=').should_not == nil
+    @n.should respond_to(:name=)
     @n.name = "Seth"
     @n.name.should == "Seth"
   end
@@ -73,16 +73,16 @@ describe "A class which is a subclass of ActiveCouch::Base with a default numeri
   end
 
   it "should have methods called name and age which return the values of the variables name and age respectively" do
-    @a.methods.index('name').should_not == nil
-    @a.methods.index('age').should_not == nil
-    
+    @a.should respond_to(:name)
+    @a.should respond_to(:age)
+
     @a.name.should == ""
     @a.age.should == 10
   end
 
   it "should have a method called name= which should let you set the instance variable name" do
-    @a.methods.index('name=').should_not == nil
-    @a.methods.index('age=').should_not == nil
+    @a.should respond_to(:name=)
+    @a.should respond_to(:age=)
     
     @a.age = 15
     @a.age.should == 15
@@ -102,8 +102,8 @@ describe "A class which is a subclass of ActiveCouch::Base with a has_many assoc
   end
   
   it "should have methods called people and add_person" do
-    @c.methods.index('people').should_not == nil
-    @c.methods.index('add_person').should_not == nil
+    @c.should respond_to(:people)
+    @c.should respond_to(:add_person)
   end
   
   it "should have a method called people which returns an empty array" do
@@ -130,5 +130,104 @@ describe "An object instantiated from class which is a subclass of ActiveCouch::
     @p1.name.should == "Seth"
     @a3.name.should == "Old Seth"
     @a3.age.should == 50
+  end
+end
+
+describe "A direct subclass of ActiveCouch::Base" do
+
+  before(:each) do
+    class Foo < ActiveCouch::Base
+    end
+  end
+
+  after(:each) do
+    # Remove class definition so we can start fresh in each spec.
+    Object.send(:remove_const, :Foo)
+  end
+
+  it "should have a base_class of itself" do
+    Foo.base_class.should == Foo
+  end
+
+  it "should infer the database name from the class name" do
+    Foo.database_name.should == 'foos'
+  end
+
+  it "should use the database name set with the set_database_name macro" do
+    Foo.set_database_name('legacy_foo')
+
+    Foo.database_name.should == 'legacy_foo'
+  end
+
+  it "should have an database_name= alias for set_database_name" do
+    Foo.database_name = 'fubar'
+
+    Foo.database_name.should == 'fubar'
+  end
+
+  it "should set an attribute from a value with define_attr_method" do
+    Foo.define_attr_method(:database_name, 'defined_foo')
+
+    Foo.database_name.should == 'defined_foo'
+  end
+
+  it "should set an attribute from a block with define_attr_method" do
+    Foo.send(:define_attr_method, :database_name) { 'legacy_' + original_database_name }
+
+    Foo.database_name.should == 'legacy_foos'
+  end
+end
+
+describe "A subclass of ActiveCouch::Base that's a subclass of an ActiveCouch::Base subclass" do
+
+  before(:all) do
+    class Parent < ActiveCouch::Base
+    end
+
+    class Child < Parent
+    end
+  end
+
+  it "should have a base_class of the parent" do
+    Child.base_class.should == Parent
+  end
+
+  it "should have a database_name of the parent's" do
+    Child.database_name.should == 'parents'
+  end
+end
+
+describe "A Cheezburger subclass of ActiveCouch::Base defined in the Burgers module" do
+  before(:all) do
+    module Burgers
+      class Cheezburger < ActiveCouch::Base
+      end
+    end
+  end
+
+  it "should have a base_class of Burgers::Cheezburger" do
+    Burgers::Cheezburger.base_class.should == Burgers::Cheezburger
+  end
+
+  it "should have a database_name of cheezburgers" do
+    Burgers::Cheezburger.database_name.should == 'cheezburgers'
+  end
+end
+
+describe "A Cheezburger subclass of ActiveCouch::Base nested in a Lolcat subclass of ActiveCouch::Base" do
+  before(:all) do
+    class Lolcat < ActiveCouch::Base
+      class Cheezburger < ActiveCouch::Base
+      end
+    end
+  end
+
+  it "should have a base_class of Lolcat::Cheezburger" do
+    Lolcat.base_class.should == Lolcat
+    Lolcat::Cheezburger.base_class.should == Lolcat::Cheezburger
+  end
+
+  it "should have a database_name of lolcat_cheezburger" do
+    Lolcat::Cheezburger.database_name.should == 'lolcat_cheezburgers'
   end
 end

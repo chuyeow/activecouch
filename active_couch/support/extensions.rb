@@ -6,15 +6,37 @@ module ActiveCouch
     # are retained
     def flatten
       (0...self.size).inject([]) {|k,v| k << self.keys[v]; k << self.values[v]}
-    end  
+    end 
   end
-  
+
   Object.class_eval do
     def get_class(name)
       # From 'The Ruby Way Second Edition' by Hal Fulton
       # This is to get nested class for e.g. A::B::C
       name.split("::").inject(Object) {|x,y| x.const_get(y)}
     end
+
+    # The singleton class.
+    def metaclass; class << self; self; end; end
+    def meta_eval &blk; metaclass.instance_eval &blk; end
+
+    # Adds methods to a metaclass.
+    def meta_def name, &blk
+      meta_eval { define_method name, &blk }
+    end
+
+    # Defines an instance method within a class.
+    def class_def name, &blk
+      class_eval { define_method name, &blk }
+    end
   end
   
+  Module.module_eval do
+    # Return the module which contains this one; if this is a root module, such as
+    # +::MyModule+, then Object is returned.
+    def parent
+      parent_name = name.split('::')[0..-2] * '::'
+      parent_name.empty? ? Object : Inflector.constantize(parent_name)
+    end
+  end
 end

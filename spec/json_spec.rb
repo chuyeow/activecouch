@@ -53,7 +53,7 @@ end
 describe "A subclass of ActiveCouch::Base with many attributes" do
   
   it "should have the from_json method" do
-    Hotel.methods.index('from_json').should_not == nil
+    Hotel.should respond_to(:from_json)
   end
   
   it "should instantiate an object when sent the from_json method with valid json as a parameter" do
