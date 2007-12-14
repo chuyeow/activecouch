@@ -16,7 +16,7 @@ module ActiveCouch
         end
         # Define the view and database instance variables based on the 
         @view = get_view(view)
-        @database = options[:for_db] if options.has_key?(:for_db)
+        @database = options[:for_db] # Don't care if the key doesn't exist
         # Block being called to set other parameters for the Migration
         yield
       end
