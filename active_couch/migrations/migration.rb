@@ -8,15 +8,15 @@ module ActiveCouch
       def define(*args)
         # Borrowed from ActiveRecord::Base.find
         first = args.slice!(0); second = args.slice!(0)
-        
+        # Based on the classes of the arguments passed, set instance variables
         case first.class.to_s
           when 'String', 'Symbol' then view = first.to_s;  options = second || {}
           when 'Hash' then  view = ''; options = first
           else raise ArgumentError, "Wrong arguments used to define the view"
         end
-        # Define the view and database instance variables based on the 
-        @view = get_view(view)
-        @database = options[:for_db] # Don't care if the key doesn't exist
+        # Define the view and database instance variables based on the args passed
+        # Don't care if the key doesn't exist
+        @view, @database = get_view(view), options[:for_db]
         # Block being called to set other parameters for the Migration
         yield
       end
