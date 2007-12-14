@@ -1,7 +1,7 @@
 module ActiveCouch
   class Attribute
     attr_reader :name, :klass, :value
-    TYPES = { :decimal => Float, :text => String, :number => Integer }
+    TYPES = {:decimal => Float, :text => String, :number => Integer}
     DEFAULTS = {:decimal => 0.0, :text => "", :number => 0}
     
     def initialize(name, options = {})
