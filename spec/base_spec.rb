@@ -161,7 +161,7 @@ end
 describe "A subclass of ActiveCouch::Base object which has called establish_connection" do
   before(:each) do
     class Cat < ActiveCouch::Base
-      establish_connection :server => '192.168.0.150', :port => '7777'
+      site 'http://192.168.0.150:7777'
     end
   end  
 
@@ -172,15 +172,15 @@ describe "A subclass of ActiveCouch::Base object which has called establish_conn
     
   it "should have the method connection" do
     Cat.methods.index('connection').should_not == nil
-    Cat.connection.server.should == '192.168.0.150'
-    Cat.connection.port.should == '7777'
+    Cat.connection.site.host.should == '192.168.0.150'
+    Cat.connection.site.port.should == 7777
   end
 end
 
 describe "An object instantiated from a subclass of ActiveCouch::Base which has called establish_connection" do
   before(:each) do
     class Cat < ActiveCouch::Base
-      establish_connection :server => '192.168.0.150', :port => '7777'
+      site 'http://192.168.0.150'
     end
     @cat = Cat.new
   end
@@ -193,8 +193,8 @@ describe "An object instantiated from a subclass of ActiveCouch::Base which has 
   
   it "should have the method connection in objects instantiated from the subclass" do
     @cat.methods.index('connection').should_not == nil
-    @cat.connection.server.should == '192.168.0.150'
-    @cat.connection.port.should == '7777'
+    @cat.connection.site.host.should == '192.168.0.150'
+    @cat.connection.site.port.should == 5984
   end
 end
   

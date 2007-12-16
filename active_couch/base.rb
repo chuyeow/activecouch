@@ -114,8 +114,8 @@ module ActiveCouch
       end
       alias :database_name= :set_database_name
 
-      def establish_connection(options = {})
-        @connection = Connection.new(options)
+      def site(site)
+        @connection = Connection.new(site)
       end
 
       def has(name, options = {})
