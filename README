@@ -1,16 +1,20 @@
 ActiveCouch aims to be an easy-to-use, familiar ORM library for the hot new kid on the block, CouchDB.
 
-Preliminarily,
+* Preliminarily,
 - it will support ActiveRecord-esque functions such as find, create, save, etc.
-- it will have a nice couch.yml with configuration pointing to the CouchDB server
+- location of the CouchDB will be specified through a very simple class method called 'site' similar to ActiveResource.
 - callbacks and observers (for example when to call upon saving of a new document)
+- migrations to add views to a CouchDB server
 
 * Nodes supported:
 - String, Integer, Float (E.g. has :name)
 - array (E.g. has_many :airports)
 
-Nice to have extensions:
-- schema.rb which will contain schemas for ActiveCouch documents
-- Migrations to change document schemas
+Pre-requisites
+--------------
+- Ruby 1.8.5 (http://www.ruby-lang.org)
+- Uses JSON gem (http://json.rubyforge.org), To install use gem install json)
 
-- Uses RSpec (http://rspec.rubyforge.org, To install use gem install rspec)
+To run specs (and thus look at code samples)
+--------------------------------------------
+- Install rspec gem (http://rspec.rubyforge.org, to install use gem install rspec)
