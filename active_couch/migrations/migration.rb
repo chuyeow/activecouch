@@ -36,11 +36,11 @@ module ActiveCouch
       def migrate
         filter_present = !@filter.nil? && @filter.length > 0
 
-        js = "function(doc) {\n"
-        js << "\tif(#{@filter}) {\n\t" if filter_present
-        js << "\tmap(doc.#{@key}, #{include_attrs});\n"
-        js << "\t}\n" if filter_present
-        js << "}"
+        js = "function(doc) { "
+        js << "if(#{@filter}) { " if filter_present
+        js << "map(doc.#{@key}, #{include_attrs});"
+        js << " } " if filter_present
+        js << " }"
         
         js
       end
