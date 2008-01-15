@@ -1,8 +1,9 @@
+require 'json'
+
 module ActiveCouch
   class Migration
-    
     class << self # Class Methods
-      
+      attr_accessor :view, :database  
       # Set the view name and database name in the define method and then execute
       # the block
       def define(*args)
@@ -33,16 +34,11 @@ module ActiveCouch
         @attrs = attrs unless attrs.nil? || !attrs.is_a?(Array)
       end
       
-      def migrate
-        filter_present = !@filter.nil? && @filter.length > 0
-
-        js = "function(doc) { "
-        js << "if(#{@filter}) { " if filter_present
-        js << "map(doc.#{@key}, #{include_attrs});"
-        js << " } " if filter_present
-        js << " }"
-        
-        js
+      def view_js
+        results_hash = {"_id" => "_design/#{@view}", "language" => "text/javascript"}
+        results_hash["views"] = [ view_function ]
+        # Returns the JSON format for the function
+        results_hash.to_json
       end
 
 private
@@ -59,6 +55,18 @@ private
         view_name = view
         view_name = Inflector.underscore("#{self}") if view.nil? || view.length == 0
         view_name  
+      end
+
+      def view_function
+        filter_present = !@filter.nil? && @filter.length > 0
+
+        js = "function(doc) { "
+        js << "if(#{@filter}) { " if filter_present
+        js << "map(doc.#{@key}, #{include_attrs});"
+        js << " } " if filter_present
+        js << " }"
+        
+        js
       end
 
     end # End Class Methods

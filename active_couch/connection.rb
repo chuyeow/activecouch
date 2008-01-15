@@ -134,7 +134,7 @@ module ActiveCouch
       end
 
       def default_header
-        @default_header ||= { 'Content-Type' => format.mime_type }
+        @default_header ||= { 'Content-Type' => 'application/json' }
       end
       
       # Builds headers for request to remote service.
