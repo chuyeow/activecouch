@@ -59,6 +59,13 @@ module ActiveCouch
       end
     end
 
+    def save
+      # POST to database with a JSON representation of the object
+      response = connection.post("/#{self.class.database_name}", self.to_json)
+      # Response sent will be 201, if the save was successful [201 corresponds to 'created']
+      return response.code == '201'
+    end
+
     class << self # Class methods
 
       def base_class
@@ -149,6 +156,22 @@ module ActiveCouch
         self.new(hash)
       end
 
+      # Similar to ActiveResource convention, find operates with two different 
+      # retrieval approaches:
+      # * Find :first
+      # * Find :all
+      # This method is stolen from ActiveResource::Base
+      def find(*arguments)
+        scope = arguments.slice!(0)
+        options = arguments.slice!(0) || {}
+        
+        case scope
+          when :all    then find_every(options)
+          when :first  then find_every(options).first
+          else              raise ArgumentError("find must have the first parameter as either :all or :first")
+        end
+      end
+
       # Defines an "attribute" method. A new (class) method will be created with the
       # given name. If a value is specified, the new method will
       # return that value (as a string). Otherwise, the given block
@@ -189,6 +212,43 @@ module ActiveCouch
           else
             class_of_active_couch_descendant(klass.superclass)
           end
+        end
+        
+        # Returns an array of ActiveCouch::Base objects by querying a CouchDB permanent view
+        def find_every(options)
+          case from = options[:from]
+          when String
+            path = "#{from}"
+          else
+            path = "/#{database_name}/_view/#{query_string(options[:params])}"
+          end
+          instantiate_collection(connection.get(path))
+        end
+        
+        # Generates a query string by using the ActiveCouch convention, which is to
+        # have the view defined by pre-pending the attribute to be queried with 'by_'
+        # So for example, if the params hash is :name => 'McLovin',
+        # the view associated with it will be /by_name/by_name?key=McLovin
+        def query_string(params)
+          if params.is_a?(Hash)
+            params.each { |k,v| return "by_#{k}/by_#{k}?key=#{v.urlencode}" }
+          else
+            raise ArgumentError, "The value for the key 'params' must be a Hash"
+          end
+        end
+        
+        def instantiate_collection(result)
+          # First parse the JSON
+          hash = JSON.parse(result)
+          # As per the CouchDB Permanent View API, the result set will be contained 
+          # within a JSON hash as an array, with the key 'rows'
+          # The actual CouchDB object which needs to be initialized is obtained with 
+          # the key 'value'
+          unless(result_set = hash['rows']).nil?
+            return result_set.inject([]) { |k,v| k << self.new(v['value']) }
+          end
+          # Return an empty array
+          []
         end
     end # End class methods
   end # End class Base

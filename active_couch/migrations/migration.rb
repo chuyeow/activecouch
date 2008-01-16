@@ -36,7 +36,7 @@ module ActiveCouch
       
       def view_js
         results_hash = {"_id" => "_design/#{@view}", "language" => "text/javascript"}
-        results_hash["views"] = [ view_function ]
+        results_hash["views"] =  { @view => view_function }
         # Returns the JSON format for the function
         results_hash.to_json
       end

@@ -1,4 +1,12 @@
 module ActiveCouch
+  
+  String.class_eval do
+    require 'cgi'
+    def urlencode
+      CGI.escape("\"#{self.to_s}\"")
+    end
+  end
+  
   Hash.class_eval do
     # Flatten on the array removes everything into *one* single array,
     # so {}.to_a.flatten sometimes won't work nicely because a value might be an array
