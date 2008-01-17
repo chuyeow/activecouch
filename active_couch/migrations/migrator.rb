@@ -9,7 +9,6 @@ module ActiveCouch
           raise ActiveCouchMigrationError, "Both the view and the database need to be defined in your migration"
         end
         # Put to the database. 201 is returned if the migration is succesful
-        puts "/#{migration.database}/_design/#{migration.view}"
         response = conn.put("/#{migration.database}/_design/#{migration.view}", migration.view_js)
         return response.code == '201'
       end

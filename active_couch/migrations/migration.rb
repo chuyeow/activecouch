@@ -3,6 +3,9 @@ require 'json'
 module ActiveCouch
   class Migration
     class << self # Class Methods
+      # Class instance variables
+      @view = nil; @database = nil
+      # These are accessible only at class-scope
       attr_accessor :view, :database  
       # Set the view name and database name in the define method and then execute
       # the block

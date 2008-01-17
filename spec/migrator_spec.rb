@@ -3,12 +3,6 @@ require File.dirname(__FILE__) + '/spec_helper.rb'
 require 'net/http'
 require 'uri'
 
-class ByFace < ActiveCouch::Migration
-  define :for_db => 'ac_test_3' do
-    with_key 'face'
-  end
-end
-
 describe "An ActiveCouch::Migrator class" do
   after(:each) do
     # TODO: Do not have dependency on delete_database to test create_database
@@ -33,6 +27,13 @@ end
 
 describe "An ActiveCouch::Migrator class" do
   before(:each) do
+    class ByFace < ActiveCouch::Migration
+      define :for_db => 'ac_test_3' do
+        with_key 'face'
+      end
+    end
+
+    
     ActiveCouch::Migrator.create_database('http://localhost:5984/', 'ac_test_3')
   end
   

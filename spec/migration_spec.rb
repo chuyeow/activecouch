@@ -1,32 +1,13 @@
 require File.dirname(__FILE__) + '/spec_helper.rb'
 
-class ByFace < ActiveCouch::Migration
-  define :for_db => 'people' do
-    with_key 'face'
-  end
-end
-
-class ByName < ActiveCouch::Migration
-  define :by_name, :for_db => 'people' do
-    with_key 'name'
-  end
-end
-
-class ByLatitude < ActiveCouch::Migration
-  define :for_db => 'hotels' do
-    with_key 'latitude'
-    with_filter 'doc.name == "Hilton"'
-  end
-end
-
-class ByLongitude < ActiveCouch::Migration
-  define :for_db => 'hotels' do
-    with_key 'latitude'
-    include_attributes :name, :rating, :latitude, :longitude, :address
-  end
-end
-
 describe "A subclass of ActiveCouch::Migration using define with two arguments" do
+  before(:each) do
+    class ByName < ActiveCouch::Migration
+      define :by_name, :for_db => 'people' do
+        with_key 'name'
+      end
+    end
+  end
   
   it "should set the key correctly if the with_key method is called" do
     ByName.instance_variable_get("@key").should == 'name'
@@ -43,10 +24,17 @@ describe "A subclass of ActiveCouch::Migration using define with two arguments" 
   it "should generate the correct javascript to be used in the view" do
     (ByName.view_js =~ /map\(doc\.name, doc\);/).should_not == nil
   end
-  
 end
 
 describe "A subclass of ActiveCouch::Migration with one argument" do
+
+  before(:each) do
+    class ByFace < ActiveCouch::Migration
+      define :for_db => 'people' do
+        with_key 'face'
+      end
+    end
+  end
 
   it "should set the view instance variable correctly" do
     ByFace.instance_variable_get("@view").should == 'by_face'
@@ -68,6 +56,15 @@ end
 
 describe "A subclass of ActiveCouch::Migration with one argument" do
   
+  before(:each) do
+    class ByLatitude < ActiveCouch::Migration
+      define :for_db => 'hotels' do
+        with_key 'latitude'
+        with_filter 'doc.name == "Hilton"'
+      end
+    end
+  end
+  
   it "should set the view instance variable correctly" do
     ByLatitude.instance_variable_get("@view").should == 'by_latitude'
   end
@@ -88,7 +85,15 @@ describe "A subclass of ActiveCouch::Migration with one argument" do
 end
 
 describe "A subclass of ActiveCouch::Migration with one argument" do
-
+  before(:each) do
+    class ByLongitude < ActiveCouch::Migration
+      define :for_db => 'hotels' do
+        with_key 'latitude'
+        include_attributes :name, :rating, :latitude, :longitude, :address
+      end
+    end
+  end
+  
   it "should set the view instance variable correctly" do
     ByLongitude.instance_variable_get("@view").should == 'by_longitude'
   end

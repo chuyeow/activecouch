@@ -148,8 +148,6 @@ module ActiveCouch
         end
       end
 
-      # TODO: 
-      #  - Raise exception if json can't be parsed or if parameter passed is incorrect
       def from_json(json)
         hash = JSON.parse(json)
         # Create new based on parsed 
@@ -244,11 +242,7 @@ module ActiveCouch
           # within a JSON hash as an array, with the key 'rows'
           # The actual CouchDB object which needs to be initialized is obtained with 
           # the key 'value'
-          unless(result_set = hash['rows']).nil?
-            return result_set.inject([]) { |k,v| k << self.new(v['value']) }
-          end
-          # Return an empty array
-          []
+          hash['rows'].inject([]) { |k,v| k << self.new(v['value']) }
         end
     end # End class methods
   end # End class Base
