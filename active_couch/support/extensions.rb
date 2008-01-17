@@ -2,7 +2,7 @@ module ActiveCouch
   
   String.class_eval do
     require 'cgi'
-    def urlencode
+    def url_encode
       CGI.escape("\"#{self.to_s}\"")
     end
   end

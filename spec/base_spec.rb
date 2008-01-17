@@ -311,30 +311,56 @@ describe "A Person subclass of ActiveCouch::Base" do
   end
 end
 
-#describe "A Person subclass of ActiveCouch::Base" do
-#  before(:each) do
-#    class Person < ActiveCouch::Base
-#      site 'http://localhost:5984/'
-#      has :name
-#    end
+describe "A Person subclass of ActiveCouch::Base" do
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name
+    end
     # Create a database called people
-#    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
-#  end
+    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+  end
   
-#  after(:each) do
+  after(:each) do
     # Delete after we're done
-#    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
-#  end
+    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+  end
    
-#  it "should have an instance method called save" do
-#    Person.new.methods.include?('save').should == true
-#  end
+  it "should have an instance method called save" do
+    Person.new.methods.include?('save').should == true
+  end
     
-#  it "should be able to persist itself in the CouchDB database" do
-#    person = Person.new(:name => 'McLovin')
-#    person.save.should == true
-#  end
-#end
+  it "should be able to persist itself in the CouchDB database" do
+    person = Person.new(:name => 'McLovin')
+    person.save.should == true
+  end
+end
+
+describe "A Person subclass of ActiveCouch::Base" do
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name
+    end
+    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+  end
+  
+  after(:each) do
+    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+  end
+  
+  it "should have a class method called create" do
+    Person.methods.include?('create').should == true
+  end
+  
+  it "should be able to persist itself in the CouchDB database" do
+    person = Person.create(:name => 'McLovin')
+    person.name.should == 'McLovin'
+    # Check whether document is persisted correctly in the database
+    response = Net::HTTP.get_response URI.parse("http://localhost:5984/people/_all_docs/")
+    response.body.index('"total_rows":1').should_not == nil
+  end
+end  
 
 describe "A Person subclass of ActiveCouch::Base" do
   before(:each) do

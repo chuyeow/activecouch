@@ -1,11 +1,13 @@
 module ActiveCouch
   class Base
+    SPECIAL_MEMBERS = %w(attributes associations connection)
+    
     def initialize(params = {})
       # Object instance variable
       @attributes, @associations, @connection, klass_atts, klass_assocs = {}, {}, self.class.connection, self.class.attributes, self.class.associations
       # ActiveCouch::Connection object will be readable in every 
       # object instantiated from a subclass of ActiveCouch::Base
-      %w(attributes associations connection).each do |m|
+      SPECIAL_MEMBERS.each do |m|
         self.instance_eval "def #{m}; @#{m}; end"
       end
       
@@ -142,7 +144,7 @@ module ActiveCouch
       # All classes inheriting from ActiveCouch::Base will have
       # a class instance variable called @attributes
       def inherited(subklass)
-        %w(attributes associations connection).each do |x|
+        SPECIAL_MEMBERS.each do |x|
           subklass.instance_variable_set "@#{x}", {}
           subklass.instance_eval "def #{x}; @#{x}; end"
         end
@@ -167,6 +169,19 @@ module ActiveCouch
           when :all    then find_every(options)
           when :first  then find_every(options).first
           else              raise ArgumentError("find must have the first parameter as either :all or :first")
+        end
+      end
+
+      # Initializes a new subclass of ActiveCouch::Base and saves in the CouchDB database
+      # as a new document
+      def create(arguments)
+        unless arguments.is_a?(Hash)
+          raise ArgumentError, "The arguments must be a Hash"
+        else
+          new_record = self.new(arguments)
+          new_record.save
+          
+          return new_record
         end
       end
 
@@ -226,10 +241,10 @@ module ActiveCouch
         # Generates a query string by using the ActiveCouch convention, which is to
         # have the view defined by pre-pending the attribute to be queried with 'by_'
         # So for example, if the params hash is :name => 'McLovin',
-        # the view associated with it will be /by_name/by_name?key=McLovin
+        # the view associated with it will be /by_name/by_name?key="McLovin"
         def query_string(params)
           if params.is_a?(Hash)
-            params.each { |k,v| return "by_#{k}/by_#{k}?key=#{v.urlencode}" }
+            params.each { |k,v| return "by_#{k}/by_#{k}?key=#{v.url_encode}" }
           else
             raise ArgumentError, "The value for the key 'params' must be a Hash"
           end
