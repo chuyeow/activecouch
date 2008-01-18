@@ -1,7 +1,7 @@
 module ActiveCouch
   class Base
     SPECIAL_MEMBERS = %w(attributes associations connection)
-    
+
     def initialize(params = {})
       # Object instance variable
       @attributes, @associations, @connection, klass_atts, klass_assocs = {}, {}, self.class.connection, self.class.attributes, self.class.associations
@@ -26,6 +26,31 @@ module ActiveCouch
       end
       # Set any instance variables if any, which are present in the params hash
       from_hash(params)
+    end
+
+    # Returns the "_id" of the CouchDB document represented by this instance.
+    def id
+      @id ||= attributes[:_id]
+    end
+
+    # Sets the "_id" of the CouchDB document represented by this instance.
+    # This doesn't do anything unless this is a new document.
+    def id=(new_id)
+      if new?
+        attributes[:_id] = @id = new_id
+      else
+        nil
+      end
+    end
+
+    # Returns the "_rev" of the CouchDB document represented by this instance.
+    def rev
+      @rev ||= attributes[:_rev]
+    end
+
+    # Returns true if this is a new CouchDB document.
+    def new?
+      @rev.nil?
     end
 
     def to_json

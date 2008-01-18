@@ -26,6 +26,37 @@ class Blog < ActiveCouch::Base
   has_many :comments
 end
 
+describe "An object instantiated from the subclass of ActiveCouch::Base" do
+  before(:each) do
+    @person = Person.new
+  end
+
+  it "should have accessors for the id attribute" do
+    @person.should respond_to(:id)
+    @person.should respond_to(:id=)
+  end
+
+  it "should have a reader for the rev attribute" do
+    @person.should respond_to(:rev)
+  end
+end
+
+describe "A new ActiveCouch::Base instance" do
+  before(:each) do
+    @person = Person.new
+  end
+
+  it "should be new" do
+    @person.should be_new
+  end
+
+  it "should not be new once it has been saved"
+
+  it "should allow you to set the id attribute"
+
+  it "should set the id and rev attributes after being saved"
+end
+
 describe "A class which is a subclass of ActiveCouch::Base" do
   before(:each) do
     @p = Person.new
