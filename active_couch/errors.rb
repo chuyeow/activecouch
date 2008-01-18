@@ -1,14 +1,17 @@
 module ActiveCouch
-  class ActiveCouchError < StandardError #:nodoc:
+  # Base exception class for all ActiveCouch errors.
+  class ActiveCouchError < StandardError
   end
 
-  class ConfigurationError < ActiveCouchError #:nodoc:
+  # Raised when there is a configuration error (duh).
+  class ConfigurationError < ActiveCouchError
   end
-  
-  class InvalidCouchTypeError < ActiveCouchError #:nodoc:
+
+  # Raised when trying to assign a object of an invalid type as an ActiveCouch attribute.
+  class InvalidCouchTypeError < ActiveCouchError
   end
-  
-  class AttributeMissingError < ActiveCouchError #:nodoc:
+
+  # Raised when trying to get or set a non-existent attribute.
+  class AttributeMissingError < ActiveCouchError
   end
-  
 end

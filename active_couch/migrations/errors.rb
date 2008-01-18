@@ -1,4 +1,4 @@
 module ActiveCouch
-  class ActiveCouchMigrationError < StandardError; end
-  class InvalidFilter < ActiveCouchMigrationError; end
+  class MigrationError < StandardError; end
+  class InvalidFilter < MigrationError; end
 end
