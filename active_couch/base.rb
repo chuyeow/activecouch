@@ -44,7 +44,7 @@ module ActiveCouch
       #  - Clean this up. Doesn't look very nice
       #  - Raise errors if attribute/association is not present
       hash.each do |k,v|
-        k = k.intern if k.is_a?(String)
+        k = k.to_sym rescue k
         if v.is_a?(Array) # This means this is a has_many association
           unless (assoc = @associations[k]).nil?
             name, child_klass = assoc.name, assoc.klass
@@ -69,6 +69,15 @@ module ActiveCouch
     end
 
     class << self # Class methods
+
+      # All classes inheriting from ActiveCouch::Base will have
+      # class instance variables in SPECIAL_MEMBERS.
+      def inherited(subklass)
+        SPECIAL_MEMBERS.each do |x|
+          subklass.instance_variable_set "@#{x}", {}
+          subklass.instance_eval "def #{x}; @#{x}; end"
+        end
+      end
 
       def base_class
         class_of_active_couch_descendant(self)
@@ -139,15 +148,6 @@ module ActiveCouch
           raise ArgumentError, "#{name} is neither a String nor a Symbol"
         end
         @associations[name] = HasManyAssociation.new(name, options)
-      end
-      
-      # All classes inheriting from ActiveCouch::Base will have
-      # a class instance variable called @attributes
-      def inherited(subklass)
-        SPECIAL_MEMBERS.each do |x|
-          subklass.instance_variable_set "@#{x}", {}
-          subklass.instance_eval "def #{x}; @#{x}; end"
-        end
       end
 
       def from_json(json)
@@ -257,7 +257,7 @@ module ActiveCouch
           # within a JSON hash as an array, with the key 'rows'
           # The actual CouchDB object which needs to be initialized is obtained with 
           # the key 'value'
-          hash['rows'].inject([]) { |k,v| k << self.new(v['value']) }
+          hash['rows'].collect { |row| self.new(row['value']) }
         end
     end # End class methods
   end # End class Base
