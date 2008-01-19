@@ -60,7 +60,6 @@ module ActiveCouch
       attributes.each_value { |v| hash.merge!(v.to_hash) }
       associations.each_value { |v| hash.merge!(v.to_hash) }
       # and by the Power of Grayskull, convert the hash to json
-
       hash.to_json
     end
 
@@ -205,8 +204,7 @@ module ActiveCouch
         else
           new_record = self.new(arguments)
           new_record.save
-          
-          return new_record
+          new_record
         end
       end
 

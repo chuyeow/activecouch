@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper.rb'
+require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 describe ActiveCouch::Connection do
   it "should set the site for the connection object and there must be no error" do

@@ -22,7 +22,7 @@ module ActiveCouch
         # Don't care if the key doesn't exist
         @view, @database = get_view(view), options[:for_db]
         # Block being called to set other parameters for the Migration
-        yield
+        yield if block_given?
       end
       
       def with_key(key = "")
