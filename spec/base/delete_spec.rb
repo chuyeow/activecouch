@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
-describe "ActiveCouch::Base #create method" do
+describe "ActiveCouch::Base #delete method" do
   before(:each) do
     class Person < ActiveCouch::Base
       site 'http://localhost:5984/'
@@ -25,12 +25,12 @@ describe "ActiveCouch::Base #create method" do
     response.body.index('"total_rows":0').should_not == nil
   end
   
-  it "should raise an error if the revision for the object is not set" do
+  it "should raise an error if the revision for the object is not set and is attempted to be deleted" do
     p = Person.new(:name => 'McLovin')
     lambda { p.delete }.should raise_error(ActiveCouch::ActiveCouchError, "You must specify a revision for the document to be deleted")
   end
   
-  it "should raise an error if the id for the object is not set, but the revision is set" do
+  it "should raise an error if the id for the object is not set, but the revision is set and is attempted to be deleted" do
     p = Person.new(:name => 'McLovin')
     p.rev = '123'
     lambda { p.delete }.should raise_error(ActiveCouch::ActiveCouchError, "You must specify an ID for the document to be deleted")
