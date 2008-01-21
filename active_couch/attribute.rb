@@ -18,7 +18,7 @@ module ActiveCouch
       # Check if default value provided matches the type provided
       if options.has_key?(:with_default_value)
         value = options[:with_default_value]
-        unless value.is_a?(klass)
+        unless value.is_a?(klass) || value.is_a?(NilClass)
           raise InvalidCouchTypeError, "Default value provided does not match the type of #{klass.to_s}"
         end
       end
@@ -27,7 +27,7 @@ module ActiveCouch
     end
     
     def value=(val)
-      unless val.is_a?(@klass)
+      unless val.is_a?(@klass) || val.is_a?(NilClass)
         raise InvalidCouchTypeError, "Default value provided does not match the type of #{@klass.to_s}"
       end
       # Set the value if value matches type
@@ -37,5 +37,10 @@ module ActiveCouch
     def to_hash
       { @name => @value }
     end
+    
+    def nil?
+      @value.nil?
+    end
+    
   end # End class CouchAttribute  
 end # End module ActiveCouch

@@ -9,11 +9,6 @@ describe "A class which is a subclass of ActiveCouch::Base" do
     @p = Person.new
   end
   
-  it "should have an instance variable called attributes which is a Hash with the key being :name" do
-    Person.attributes.class.should == Hash
-    Person.attributes.keys.should == [:name]
-  end
-  
   it "should have a method called name which returns the value of the variable name" do
     @p.should respond_to(:name)
     @p.name.should == ""
@@ -33,11 +28,6 @@ describe "A class which is a subclass of ActiveCouch::Base with a default value 
     end
     
     @n = NamedPerson.new
-  end
-  
-  it "should have an instance variable called attributes which is a Hash with the key being :name" do
-    NamedPerson.attributes.class.should == Hash
-    NamedPerson.attributes.keys.should == [:name]
   end
   
   it "should have a method called name which returns the value of the variable name" do

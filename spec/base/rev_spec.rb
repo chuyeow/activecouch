@@ -9,7 +9,8 @@ describe "An object instantiated from the subclass of ActiveCouch::Base" do
     @person = Person.new
   end
 
-  it "should have a reader for the rev attribute" do
+  it "should have reader/writer for the rev attribute" do
     @person.should respond_to(:rev)
+    @person.should respond_to(:rev=)
   end
 end

@@ -16,12 +16,20 @@ describe "ActiveCouch::Base #to_json method with just simple attributes" do
   end
 
   it "should produce valid JSON output when sent the to_json method" do
-    @h.to_json.should == '{"name":"Swissotel The Stamford","rooms":100,"star_rating":5.0}'
+    json_output = @h.to_json
+    # Check for JSON regex, since attributes can appear in any order
+    (json_output =~ /"name":"Swissotel The Stamford"/).should_not == nil
+    (json_output =~ /"rooms":100/).should_not == nil
+    (json_output =~ /"star_rating":5.0/).should_not == nil    
   end
   
   it "should produce valid JSON output when an attribute has been changed and the to_json method is sent" do
     @h.rooms = 200
-    @h.to_json.should == '{"name":"Swissotel The Stamford","rooms":200,"star_rating":5.0}'
+    json_output = @h.to_json
+    # Check for JSON regex, since attributes can appear in any order
+    (json_output =~ /"name":"Swissotel The Stamford"/).should_not == nil
+    (json_output =~ /"rooms":200/).should_not == nil
+    (json_output =~ /"star_rating":5.0/).should_not == nil    
   end
 end
 
@@ -46,6 +54,11 @@ describe "ActiveCouch::Base #to_json with associations" do
   end
 
   it "should produce valid JSON when sent the to_json method" do
-    @c.to_json.should == '{"name":"Crazed McLovin","hospitals":[{"name":"Crazy Hospital 1"},{"name":"Crazy Hospital 2"}]}'
+    json_output = @c.to_json
+    # Check for JSON regex, since attributes can appear in any order
+    (json_output =~ /"name":"Crazed McLovin"/).should_not == nil
+    (json_output =~ /"hospitals":\[.*?\]/).should_not == nil
+    (json_output =~ /\{.*?"name":"Crazy Hospital 1".*?\}/).should_not == nil
+    (json_output =~ /\{.*?"name":"Crazy Hospital 2".*?\}/).should_not == nil    
   end
 end

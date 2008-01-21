@@ -14,7 +14,9 @@ describe "An object instantiated from the subclass of ActiveCouch::Base" do
     @person.should respond_to(:id=)
   end
 
-  it "should have a reader for the rev attribute" do
-    @person.should respond_to(:rev)
+  it "should be able to set and retrieve the id variable" do
+    @person.id = 'abc-def'
+    @person.id.should == 'abc-def'
   end
+
 end

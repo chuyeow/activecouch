@@ -1,5 +1,5 @@
 module ActiveCouch
-  
+
   String.class_eval do
     require 'cgi'
     def url_encode
@@ -47,4 +47,5 @@ module ActiveCouch
       parent_name.empty? ? Object : Inflector.constantize(parent_name)
     end
   end
+  
 end

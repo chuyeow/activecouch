@@ -35,14 +35,21 @@ describe "ActiveCouch::Base #find method with just simple attributes" do
     people.class.should == Array
     # Size of people
     people.size.should == 1
+    
     people.first.class.should == Person
     people.first.name.should == 'McLovin'
+    # Check if id and rev are set
+    people.first.id.should_not == nil
+    people.first.rev.should_not == nil
   end
 
   it "should return one Person object when sent method find with parameter :one" do
     person = Person.find(:first, :params => {:name => 'McLovin'})
     person.class.should == Person
     person.name.should == 'McLovin'
+    # Check if id and rev are set
+    person.id.should_not == nil
+    person.rev.should_not == nil
   end
 
   it "should return an empty array when sent method find with parameter :all and is not able to find any" do
