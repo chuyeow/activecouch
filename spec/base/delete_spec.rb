@@ -24,4 +24,15 @@ describe "ActiveCouch::Base #create method" do
     response = Net::HTTP.get_response URI.parse("http://localhost:5984/people/_all_docs/")
     response.body.index('"total_rows":0').should_not == nil
   end
+  
+  it "should raise an error if the revision for the object is not set" do
+    p = Person.new(:name => 'McLovin')
+    lambda { p.delete }.should raise_error(ActiveCouch::ActiveCouchError, "You must specify a revision for the document to be deleted")
+  end
+  
+  it "should raise an error if the id for the object is not set, but the revision is set" do
+    p = Person.new(:name => 'McLovin')
+    p.rev = '123'
+    lambda { p.delete }.should raise_error(ActiveCouch::ActiveCouchError, "You must specify an ID for the document to be deleted")
+  end
 end
