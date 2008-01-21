@@ -107,6 +107,17 @@ module ActiveCouch
       rev.nil?
     end
 
+    # Deletes a document from a CouchDB database.
+    def delete
+      if new?
+        raise ActiveCouchError, "You must specify a revision for the document to be deleted"
+      elsif id.nil?
+        raise ActiveCouchError, "You must specify an ID for the document to be deleted"
+      else
+        connection.delete("/#{self.class.database_name}/#{id}?rev=#{rev}")
+      end
+    end
+
     class << self # Class methods
 
       def inherited(subklass)
@@ -328,6 +339,7 @@ module ActiveCouch
       end
 
       private
+      
         # Returns the class descending directly from ActiveCouch in the inheritance hierarchy.
         def class_of_active_couch_descendant(klass)
           if klass.superclass == Base
@@ -362,7 +374,9 @@ module ActiveCouch
           end
         end
         
-        # First parse the JSON.
+        # Instantiates a collection of ActiveCouch::Base objects, based on the 
+        # result obtained from a CouchDB View.
+        #
         # As per the CouchDB Permanent View API, the result set will be contained 
         # within a JSON hash as an array, with the key 'rows'
         # The actual CouchDB object which needs to be initialized is obtained with 
