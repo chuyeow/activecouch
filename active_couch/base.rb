@@ -107,34 +107,31 @@ module ActiveCouch
       rev.nil?
     end
 
-    # Deletes a document from a CouchDB database.
+    # Deletes a document from a CouchDB database. This is an instance-level delete method.
+    # Example:
+    #   class Person < ActiveCouch::Base
+    #     has :name
+    #   end
+    #   
+    #   person = Person.create(:name => 'McLovin')
+    #   person.delete # true
     def delete
       if new?
-        raise ActiveCouchError, "You must specify a revision for the document to be deleted"
+        raise ArgumentError, "You must specify a revision for the document to be deleted"
       elsif id.nil?
-        raise ActiveCouchError, "You must specify an ID for the document to be deleted"
+        raise ArgumentError, "You must specify an ID for the document to be deleted"
+      end
+      response = connection.delete("/#{self.class.database_name}/#{id}?rev=#{rev}")
+      # Set the id and rev to nil, since the object has been successfully deleted from CouchDB
+      if response.code == '202'
+        self.id = nil; self.rev = nil
+        true
       else
-        connection.delete("/#{self.class.database_name}/#{id}?rev=#{rev}")
+        false
       end
     end
 
     class << self # Class methods
-
-      def inherited(subklass)
-        # TODO: Need a cleaner way to do this
-        subklass.instance_variable_set "@attributes", { :_id => Attribute.new(:_id, :with_default_value => nil), 
-                                                        :_rev => Attribute.new(:_rev, :with_default_value => nil) }
-        subklass.instance_variable_set "@associations", {}
-        subklass.instance_variable_set "@connections", nil
-                                                        
-        SPECIAL_MEMBERS.each do |k|
-          subklass.instance_eval "def #{k}; @#{k}; end"
-        end
-      end
-
-      def base_class
-        class_of_active_couch_descendant(self)
-      end
 
       # Returns the CouchDB database name that's backing this model. The database name is guessed from the name of the
       # class somewhat similar to ActiveRecord conventions.
@@ -273,8 +270,11 @@ module ActiveCouch
       #   class Person < ActiveCouch::Base
       #     has :name
       #   end
-      # 
+      #
+      #   # This returns a single instance of an ActiveCouch::Base subclass
       #   people = Person.find(:first, :params => {:name => "McLovin"})
+      #
+      #   # This returns an array of ActiveCouch::Base subclass instances
       #   person = Person.find(:all, :params => {:name => "McLovin"})
       def find(*arguments)
         scope = arguments.slice!(0)
@@ -308,6 +308,24 @@ module ActiveCouch
         end
       end
 
+      # Deletes a document from the CouchDB database, based on the id and rev parameters passed to it.
+      # Returns true if the document has been deleted
+      #
+      # Example:
+      #   class Person < ActiveCouch::Base
+      #     has :name
+      #   end
+      # 
+      #   Person.delete(:id => 'abc-def', :rev => '1235')
+      def delete(options = {})
+        if options.nil? || !options.has_key?(:id) || !options.has_key?(:rev)
+          raise ArgumentError, "You must specify both an id and a rev for the document to be deleted"
+        end
+        response = connection.delete("/#{self.database_name}/#{options[:id]}?rev=#{options[:rev]}")
+        # Returns true if the 
+        response.code == '202'
+      end
+
       # Defines an "attribute" method. A new (class) method will be created with the
       # given name. If a value is specified, the new method will
       # return that value (as a string). Otherwise, the given block
@@ -336,6 +354,22 @@ module ActiveCouch
         else
           metaclass.class_eval "def #{name}; #{value.to_s.inspect}; end"
         end
+      end
+
+      def inherited(subklass)
+        # TODO: Need a cleaner way to do this
+        subklass.instance_variable_set "@attributes", { :_id => Attribute.new(:_id, :with_default_value => nil), 
+                                                        :_rev => Attribute.new(:_rev, :with_default_value => nil) }
+        subklass.instance_variable_set "@associations", {}
+        subklass.instance_variable_set "@connections", nil
+                                                        
+        SPECIAL_MEMBERS.each do |k|
+          subklass.instance_eval "def #{k}; @#{k}; end"
+        end
+      end
+
+      def base_class
+        class_of_active_couch_descendant(self)
       end
 
       private
