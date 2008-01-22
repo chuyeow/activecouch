@@ -40,9 +40,71 @@ describe "ActiveCouch::Base #before_delete method with a Symbol as argument" do
 end
 
 describe "ActiveCouch::Base #before_save method with a block as argument" do
-  it "should execute the block as a param to before_save"
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name
+      has :age, :which_is => :number
+      # Callback, before the actual save happens
+      before_delete { |record| record.age = 0 }
+    end
+    # Migration needed for this spec
+    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+  end
+  
+  after(:each) do
+    # Migration needed for this spec    
+    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+  end
+  
+  it "should execute the block as a param to before_save" do
+    # First save the object
+    p = Person.create(:name => 'McLovin', :age => 10)
+    # Before deleting, age must be 10
+    p.age.should == 10
+    # Delete the object, and...
+    p.delete.should == true
+    # ...age must equal 0
+    p.age.should == 0
+  end  
 end
 
 describe "ActiveCouch::Base #before_save method with an Object (which implements before_save) as argument" do
-  it "should call before_save in the object passed as a param to before_save" 
+  before(:each) do
+    class AgeSetter
+      def initialize(attribute)
+        @attribute = attribute
+      end
+      
+      def before_delete(record)
+        record.age = 0
+      end
+    end
+    
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name
+      has :age, :which_is => :number
+      # Callback, before the actual save happens
+      before_delete AgeSetter.new("age")
+    end
+    # Migration needed for this spec
+    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+  end
+  
+  after(:each) do
+    # Migration needed for this spec    
+    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+  end
+  
+  it "should call before_save in the object passed as a param to before_delete" do
+    # First save the object
+    p = Person.create(:name => 'McLovin', :age => 10)
+    # Before deleting, age must be 10
+    p.age.should == 10
+    # Delete the object, and...
+    p.delete.should == true
+    # ...age must equal 0
+    p.age.should == 0
+  end    
 end

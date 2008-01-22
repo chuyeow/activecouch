@@ -39,9 +39,65 @@ describe "ActiveCouch::Base #after_save method" do
 end
 
 describe "ActiveCouch::Base #after_save method with a block as argument" do
-  it "should execute the block as a param to after_save"
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name
+      has :saved_revision
+      # Callback, after the actual save happens
+      after_save { |record| record.saved_revision = record.rev }
+    end
+    # Migration needed for this spec
+    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+  end
+  
+  after(:each) do
+    # Migration needed for this spec    
+    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+  end
+  
+  it "should execute the block as a param to after_save" do
+    p = Person.new(:name => 'McLovin')
+    # Save should return true...
+    p.save.should == true
+    # ...and saved_id must not be nil (because it is set to the revision)
+    p.saved_revision.should_not == nil
+  end
 end
 
 describe "ActiveCouch::Base #after_save method with an Object (which implements after_save) as argument" do
-  it "should call before_save in the object passed as a param to after_save" 
+  before(:each) do
+    class RevisionSetter
+      def initialize(attribute)
+        @attribute = attribute
+      end
+      
+      def after_save(record)
+        record.saved_revision = record.rev
+      end
+    end
+    
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name
+      has :saved_revision
+      # Callback, after the actual save happens
+      after_save RevisionSetter.new("saved_revision")
+    end
+    # Migration needed for this spec
+    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+  end
+  
+  after(:each) do
+    # Migration needed for this spec    
+    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+  end
+  
+  it "should call before_save in the object passed as a param to after_save" do
+    p = Person.new(:name => 'McLovin')
+    # Save should return true...
+    p.save.should == true
+    # ...and saved_id must not be nil (because it is set to the revision)
+    p.saved_revision.should_not == nil
+  end
 end
