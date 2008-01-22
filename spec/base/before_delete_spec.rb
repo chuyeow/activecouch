@@ -29,8 +29,7 @@ describe "ActiveCouch::Base #before_delete method with a Symbol as argument" do
   
   it "should call the method specified as an argument to before_delete, *before* deleting the object from CouchDB" do
     # First save the object
-    p = Person.create(:name => 'McLovin')
-    p.age = 10
+    p = Person.create(:name => 'McLovin', :age => 10)
     # Before deleting, age must be 10
     p.age.should == 10
     # Delete the object, and...

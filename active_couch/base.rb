@@ -450,7 +450,7 @@ module ActiveCouch
           elsif v.is_a?(Hash) # This means this is a has_one association (which we might add later)
             # Do nothing for now. More later
           else # This means this is a normal attribute
-            self.send("#{k}=", v) if @attributes.has_key?(k)
+            self.send("#{k}=", v) if respond_to?("#{k}=") # @attributes.has_key?(k) || @attributes.has_key?("_#{k}")
           end
         end
       end
