@@ -11,3 +11,8 @@ require 'active_couch/errors'
 require 'active_couch/base'
 require 'active_couch/connection'
 require 'active_couch/migrations'
+require 'active_couch/callbacks'
+
+#ActiveCouch::Base.class_eval do
+#  include ActiveCouch::Callbacks
+#end

@@ -1,11 +1,12 @@
 module ActiveCouch
   class Base
-    SPECIAL_MEMBERS =  %w(attributes associations connection)
+    SPECIAL_MEMBERS =  %w(attributes associations connection callbacks)
     DEFAULT_ATTRIBUTES = %w(id rev)
-
+    
     def initialize(params = {})
       # Object instance variable
-      @attributes, @associations, @connection, klass_atts, klass_assocs = {}, {}, self.class.connection, self.class.attributes, self.class.associations
+      @attributes = {}; @associations = {}; @callbacks = Hash.new; @connection = self.class.connection
+      klass_atts = self.class.attributes; klass_assocs = self.class.associations; klass_callbacks = self.class.callbacks
       # ActiveCouch::Connection object will be readable in every 
       # object instantiated from a subclass of ActiveCouch::Base
       SPECIAL_MEMBERS.each do |k|
@@ -18,11 +19,6 @@ module ActiveCouch
         self.instance_eval "def #{k}=(val); attributes[:#{k}].value = val; end"
       end
       
-      DEFAULT_ATTRIBUTES.each do |x|
-        self.instance_eval "def #{x}; _#{x}; end"
-        self.instance_eval "def #{x}=(val); self._#{x}=(val); end"
-      end
-      
       klass_assocs.each_key do |k|
         @associations[k] = HasManyAssociation.new(klass_assocs[k].name, :class => klass_assocs[k].klass)
         self.instance_eval "def #{k}; associations[:#{k}].container; end"
@@ -30,6 +26,16 @@ module ActiveCouch
         # from the class
         self.instance_eval "def add_#{Inflector.singularize(k)}(val); associations[:#{k}].push(val); end"
       end
+      
+      klass_callbacks.each_key do |k|
+        @callbacks[k] = klass_callbacks[k].dup
+      end
+      
+      DEFAULT_ATTRIBUTES.each do |x|
+        self.instance_eval "def #{x}; _#{x}; end"
+        self.instance_eval "def #{x}=(val); self._#{x}=(val); end"
+      end
+      
       # Set any instance variables if any, which are present in the params hash
       from_hash(params)
     end
@@ -357,10 +363,15 @@ module ActiveCouch
       end
 
       def inherited(subklass)
+        subklass.class_eval do
+          include ActiveCouch::Callbacks
+        end
+        
         # TODO: Need a cleaner way to do this
         subklass.instance_variable_set "@attributes", { :_id => Attribute.new(:_id, :with_default_value => nil), 
                                                         :_rev => Attribute.new(:_rev, :with_default_value => nil) }
         subklass.instance_variable_set "@associations", {}
+        subklass.instance_variable_set "@callbacks", Hash.new([])
         subklass.instance_variable_set "@connections", nil
                                                         
         SPECIAL_MEMBERS.each do |k|
