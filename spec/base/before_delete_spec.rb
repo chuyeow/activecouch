@@ -72,10 +72,6 @@ end
 describe "ActiveCouch::Base #before_save method with an Object (which implements before_save) as argument" do
   before(:each) do
     class AgeSetter
-      def initialize(attribute)
-        @attribute = attribute
-      end
-      
       def before_delete(record)
         record.age = 0
       end
@@ -86,7 +82,7 @@ describe "ActiveCouch::Base #before_save method with an Object (which implements
       has :name
       has :age, :which_is => :number
       # Callback, before the actual save happens
-      before_delete AgeSetter.new("age")
+      before_delete AgeSetter.new
     end
     # Migration needed for this spec
     ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')

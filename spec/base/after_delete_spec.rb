@@ -65,6 +65,7 @@ describe "ActiveCouch::Base #after_delete method with a block as argument" do
     p.save
     # Delete should return true...
     p.delete.should == true
+    # ...and then delete_status must be "Deleted McLovin"
     p.delete_status.should == "Deleted McLovin"
   end
 end
@@ -72,10 +73,6 @@ end
 describe "ActiveCouch::Base #after_save method with an Object (which implements after_save) as argument" do
   before(:each) do
     class DeleteStatusSetter
-      def initialize(attribute)
-        @attribute = attribute
-      end
-      
       def after_delete(record)
         record.delete_status = 'Deleted McLovin'
       end
@@ -86,7 +83,7 @@ describe "ActiveCouch::Base #after_save method with an Object (which implements 
       has :name
       has :delete_status
       # Callback, after the actual save happens
-      after_delete DeleteStatusSetter.new("delete_status")
+      after_delete DeleteStatusSetter.new
     end
     # Migration needed for this spec
     ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')

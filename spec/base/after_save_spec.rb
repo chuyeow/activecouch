@@ -68,10 +68,6 @@ end
 describe "ActiveCouch::Base #after_save method with an Object (which implements after_save) as argument" do
   before(:each) do
     class RevisionSetter
-      def initialize(attribute)
-        @attribute = attribute
-      end
-      
       def after_save(record)
         record.saved_revision = record.rev
       end
@@ -82,7 +78,7 @@ describe "ActiveCouch::Base #after_save method with an Object (which implements 
       has :name
       has :saved_revision
       # Callback, after the actual save happens
-      after_save RevisionSetter.new("saved_revision")
+      after_save RevisionSetter.new
     end
     # Migration needed for this spec
     ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')

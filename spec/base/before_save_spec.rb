@@ -66,10 +66,6 @@ end
 describe "ActiveCouch::Base #before_save method with an Object (which implements before_save) as argument" do
   before(:each) do
     class NameSetter
-      def initialize(attribute)
-        @attribute = attribute
-      end
-      
       def before_save(record)
         record.first_name = 'Seth'
       end
@@ -79,7 +75,7 @@ describe "ActiveCouch::Base #before_save method with an Object (which implements
       site 'http://localhost:5984/'
       has :first_name; has :last_name
       # Callback, before the actual save happens
-      before_save NameSetter.new("first_name")
+      before_save NameSetter.new
     end
     
     # Migration needed for this spec
