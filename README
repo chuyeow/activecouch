@@ -1,20 +1,42 @@
-ActiveCouch aims to be an easy-to-use, familiar ORM library for the hot new kid on the block, CouchDB.
+ActiveCouch wants to be a simple, convenient, idiomatic Object Relational Mapper for the hot new kid on the block - CouchDB. CouchDB (simplistically speaking) is a document store, which essentially means that objects can be stored in a schema-less environment.
 
-* Preliminarily,
-- it will support ActiveRecord-esque functions such as find, create, save, etc.
-- location of the CouchDB will be specified through a very simple class method called 'site' similar to ActiveResource.
-- callbacks and observers (for example when to call upon saving of a new document)
-- migrations to add views to a CouchDB server
+What it is?
+-----------
+With ActiveCouch, you can easily save, query, delete documents to/from a CouchDB database in your favourite language - Ruby. ActiveCouch derives a lot of its principles (and some code) from both ActiveRecord and ActiveResource, two libraries made popular by the other hot pubescent on the block - Ruby on Rails (http://www.rubyonrails.org).
 
-* Nodes supported:
-- String, Integer, Float (E.g. has :name)
-- array (E.g. has_many :airports)
+Why?
+----
+As they say, necessity is the mother of invention. And as they also say, death before inconvenience. Our company, Bezurk (http://www.bezurk.com) is experimenting with CouchDB as we have a need for a document-model to store vast amounts of information, and we needed a convenience mapper in our favourite language, in order to use CouchDB elegantly. Since, the Rubyists here at Bezurk are already very familiar with ActiveRecord semantics, care has been taken to ensure that ActiveCouch resembled it in many ways.
 
-Pre-requisites
---------------
-- Ruby 1.8.5 (http://www.ruby-lang.org)
-- Uses JSON gem (http://json.rubyforge.org), To install use gem install json)
+Requirements
+------------
+ - Ruby 1.8.5 or above (http://www.ruby-lang.org)
+ - rubygems 0.9.4 (http://rubygems.org)
+ - JSON gem (http://json.rubyforge.org) [Used for JSON encoding/decoding]
+ - RSpec gem (http://rspec.rubyforge.org) [Used to run specs]
+ - CouchDB 0.7.2 (http://couchdb.googlecode.com) [Some specs require running CouchDB at localhost:5984]
 
-To run specs (and thus look at code samples)
---------------------------------------------
-- Install rspec gem (http://rspec.rubyforge.org, to install use gem install rspec)
+We would also recommend installing ZenTest (http://www.zenspider.com/ZSS/Products/ZenTest/) which provides a very convenient way to run specs.
+
+Show me the docs
+----------------
+We have some pretty basic RDoc bundled along with the source code. But the best source of documentation and sample code at this point will be the specs. The layout for specs has been inspired from the very inspiring Rubinius project (http://rubini.us) where each class has its own directory, and each method has its own spec file, thus making it very readable.
+
+
+Show me the code
+----------------
+SVN Repo is here: http://activecouch.googlecode.com/svn/trunk/
+
+Bugs/Issues
+-----------
+If and when you find bugs/feature requests, please raise a ticket at http://activecouch.googlecode.com . If we find that feature requests are crucial for our internal use, we will definitely integrate it into our project as soon as possible. But otherwise, we unfortunately cannot guarantee any deadlines on integration of feature requests. [http://www.flickr.com/photos/rooreynolds/243810133/]
+
+So, if you find bugs/feature requests, we'd greatly appreciate patches (which include specs), but otherwise please bear with us.
+
+
+Looking Forward
+---------------
+
+Obviously, we are very excited about developments in CouchDB land and we will be closely monitoring the CouchDB project, in order to further improve ActiveCouch. Since we are using ActiveCouch internally, we are expecting heavy development in CouchDB in the months to come.
+
+"The Journey is the Reward"

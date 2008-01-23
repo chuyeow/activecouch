@@ -6,4 +6,4 @@ rescue LoadError
   require 'spec'
 end
 
-require File.dirname(__FILE__) + "/../active_couch"
+require File.dirname(__FILE__) + "/../lib/active_couch"
