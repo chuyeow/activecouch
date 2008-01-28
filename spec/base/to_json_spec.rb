@@ -11,6 +11,10 @@ describe "ActiveCouch::Base #to_json method with just simple attributes" do
     @h = Hotel.new
   end
 
+  after(:each) do
+    Object.send(:remove_const, :Hotel)
+  end  
+
   it "should have to the to_json method" do
     @h.should respond_to(:to_json)
   end
@@ -52,6 +56,11 @@ describe "ActiveCouch::Base #to_json with associations" do
     @c.add_hospital(@h1)
     @c.add_hospital(@h2)
   end
+
+  after(:each) do
+    Object.send(:remove_const, :Hospital)
+    Object.send(:remove_const, :CrazyPerson)
+  end  
 
   it "should produce valid JSON when sent the to_json method" do
     json_output = @c.to_json

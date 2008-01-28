@@ -21,6 +21,7 @@ describe "ActiveCouch::Base #before_save method with a Symbol as argument" do
   after(:each) do
     # Migration needed for this spec    
     ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    Object.send(:remove_const, :Person)
   end
   
   it "should have a class method called before_save" do
@@ -52,6 +53,7 @@ describe "ActiveCouch::Base #before_save method with a block as argument" do
   after(:each) do
     # Migration needed for this spec    
     ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    Object.send(:remove_const, :Person)
   end
   
   it "should execute the block as a param to before_save" do
@@ -85,6 +87,7 @@ describe "ActiveCouch::Base #before_save method with an Object (which implements
   after(:each) do
     # Migration needed for this spec    
     ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    Object.send(:remove_const, :Person)
   end
   
   it "should call before_save in the object passed as a param to before_save" do

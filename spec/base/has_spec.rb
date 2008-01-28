@@ -5,9 +5,13 @@ describe "A class which is a subclass of ActiveCouch::Base" do
     class Person < ActiveCouch::Base
       has :name, :which_is => :text
     end
-    
+    # Initialize a new Person object
     @p = Person.new
   end
+  
+  after(:each) do
+    Object.send(:remove_const, :Person)
+  end  
   
   it "should have a method called name which returns the value of the variable name" do
     @p.should respond_to(:name)
@@ -30,6 +34,10 @@ describe "A class which is a subclass of ActiveCouch::Base with a default value 
     @n = NamedPerson.new
   end
   
+  after(:each) do
+    Object.send(:remove_const, :NamedPerson)
+  end  
+  
   it "should have a method called name which returns the value of the variable name" do
     @n.should respond_to(:name)
     @n.name.should == "McLovin"
@@ -51,6 +59,10 @@ describe "A class which is a subclass of ActiveCouch::Base with a default numeri
     
     @a = AgedPerson.new
   end
+  
+  after(:each) do
+    Object.send(:remove_const, :AgedPerson)
+  end  
 
   it "should have an instance variable called attributes which is a Hash with the keys being :name, :age" do
     AgedPerson.attributes.class.should == Hash

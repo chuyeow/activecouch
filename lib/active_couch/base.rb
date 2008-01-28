@@ -289,8 +289,23 @@ module ActiveCouch
         case scope
           when :all    then find_every(options)
           when :first  then find_every(options).first
-          else              raise ArgumentError("find must have the first parameter as either :all or :first")
+          else              find_one(scope) #raise ArgumentError("find must have the first parameter as either :all or :first")
         end
+      end
+
+      # Retrieves the count of the number of objects in the CouchDB database, based on the
+      # search parameters given.
+      #
+      # Example:
+      #   class Person < ActiveCouch::Base
+      #     has :name
+      #   end
+      #
+      #   # This returns the count of the number of objects
+      #   people_count = Person.count(:params => {:name => "McLovin"})
+      def count(params = {})
+        result_set = find(:all, params)
+        result_set.size
       end
 
       # Initializes a new subclass of ActiveCouch::Base and saves in the CouchDB database
@@ -407,6 +422,15 @@ module ActiveCouch
           instantiate_collection(connection.get(path))
         end
         
+        def find_one(id)
+          path = "/#{database_name}/#{id}"
+          begin
+            instantiate_object(connection.get(path))
+          rescue ResourceNotFound
+            nil
+          end
+        end
+        
         # Generates a query string by using the ActiveCouch convention, which is to
         # have the view defined by pre-pending the attribute to be queried with 'by_'
         # So for example, if the params hash is :name => 'McLovin',
@@ -429,6 +453,14 @@ module ActiveCouch
         def instantiate_collection(result)
           hash = JSON.parse(result)
           hash['rows'].collect { |row| self.new(row['value']) }
+        end
+        
+        # Instantiates an ActiveCouch::Base object, based on the result obtained from
+        # the GET URL
+        def instantiate_object(result)
+          puts result
+          hash = JSON.parse(result)
+          self.new(hash)
         end
     end # End class methods
     

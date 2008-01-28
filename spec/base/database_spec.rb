@@ -55,6 +55,11 @@ describe "A subclass of ActiveCouch::Base that's a subclass of an ActiveCouch::B
     end
   end
 
+  after(:all) do
+    Object.send(:remove_const, :Parent)
+    Object.send(:remove_const, :Child)
+  end
+
   it "should have a base_class of the parent" do
     Child.base_class.should == Parent
   end

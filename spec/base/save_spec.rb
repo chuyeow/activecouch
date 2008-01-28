@@ -13,6 +13,7 @@ describe "A Person subclass of ActiveCouch::Base" do
   after(:each) do
     # Delete after we're done
     ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    Object.send(:remove_const, :Person)
   end
    
   it "should have an instance method called save" do
@@ -40,6 +41,7 @@ describe "A new ActiveCouch::Base instance" do
   after(:each) do
     # Delete after we're done
     ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    Object.send(:remove_const, :Person)
   end
 
   it "should be new" do
@@ -56,9 +58,8 @@ describe "A new ActiveCouch::Base instance" do
 
   it "should allow you to set the id attribute, and the id must be reflected in the object after saving" do
     @person.id = 'abc_def'
-    puts @person.to_json
-    
     @person.save
+    
     @person.id.should == 'abc_def'
   end
   

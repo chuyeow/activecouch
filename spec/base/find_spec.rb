@@ -24,6 +24,7 @@ describe "ActiveCouch::Base #find method with just simple attributes" do
   after(:each) do
     # Delete the database last
     ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    Object.send(:remove_const, :Person)
   end
 
   it "should respond to the find method" do
@@ -64,6 +65,7 @@ describe "ActiveCouch::Base #find method with just simple attributes" do
   end
 end
 
+
 describe "ActiveCouch::Base #find method with multiple documents in the CouchDB database" do
   before(:each) do
     class Person < ActiveCouch::Base
@@ -90,7 +92,8 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
   
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')    
+    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    Object.send(:remove_const, :Person)
   end
   
   it "should find all objects in the database when find method is sent the param :all" do
@@ -147,6 +150,8 @@ describe "ActiveCouch::Base #find method with an object which has associations" 
   after(:each) do
     # Create the database first
     ActiveCouch::Migrator.delete_database('http://localhost:5984', 'blogs')
+    Object.send(:remove_const, :Blog)
+    Object.send(:remove_const, :Comment)
   end
   
   it "should be able to retrieve the simple attributes" do
@@ -162,4 +167,72 @@ describe "ActiveCouch::Base #find method with an object which has associations" 
     (blog.comments.inspect =~ /ya rly!/).should_not == nil
   end
   
+end
+
+describe "ActiveCouch::Base #find method with no params passed" do
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+        has :name
+    end
+    # Define the migration
+    class ByName < ActiveCouch::Migration
+      define :for_db => 'people' do
+        with_key 'name'
+      end
+    end
+    # Create the database first
+    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    # Create a view
+    ActiveCouch::Migrator.migrate('http://localhost:5984', ByName)
+    # Save two objects
+    Person.create(:name => 'McLovin')
+    Person.create(:name => 'Seth')
+  end
+
+  after(:each) do
+    # Delete the database last
+    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    Object.send(:remove_const, :Person)
+  end
+  
+  it "should return all documents if passed :all, with no params specified"
+end
+
+
+describe "ActiveCouch::Base #find method with an ID passed" do
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+        has :name
+    end
+    # Define the migration
+    class ByName < ActiveCouch::Migration
+      define :for_db => 'people' do
+        with_key 'name'
+      end
+    end
+    # Create the database first
+    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    # Create a view
+    ActiveCouch::Migrator.migrate('http://localhost:5984', ByName)
+    # Save two objects
+    Person.create(:name => 'McLovin', :id => '123')
+  end
+
+  after(:each) do
+    # Delete the database last
+    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    Object.send(:remove_const, :Person)
+  end
+  
+  it "should return an ActiveCouch::Base object if the ID exists" do
+    person = Person.find('123')
+    person.name.should == 'McLovin'
+  end
+  
+  it "should return nil if the ID does not exist" do
+    person = Person.find('321')
+    person.should == nil
+  end
 end

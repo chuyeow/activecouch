@@ -20,6 +20,12 @@ describe "A class which is a subclass of ActiveCouch::Base with a has_many assoc
     @a1 = AgedPerson.new
   end
   
+  after(:each) do
+    Object.send(:remove_const, :Person)
+    Object.send(:remove_const, :AgedPerson)
+    Object.send(:remove_const, :Contact)
+  end  
+  
   it "should have an instance variable called associations which is a Hash with the key being :people" do
     Contact.associations.class.should == Hash
     Contact.associations.keys.should == [:people]
@@ -60,6 +66,11 @@ describe "An object instantiated from class which is a subclass of ActiveCouch::
     @blog = Blog.new(:title => 'Lolcats Primer', :comments => [@comment1, @comment2])
     @blog1 = Blog.new(:title => 'Lolcats Primer The Sequel', :comments => [{:body => 'can'}, {:body => 'haz'}])
   end
+  
+  after(:each) do
+    Object.send(:remove_const, :Comment)
+    Object.send(:remove_const, :Blog)
+  end  
   
   it "should be able to initialize with a hash which contains descendents of ActiveCouch::Base" do
     @comment1.body.should == "I can haz redbull?"

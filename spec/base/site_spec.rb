@@ -1,13 +1,13 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 describe "A subclass of ActiveCouch::Base object which has called establish_connection" do
-  before(:each) do
+  before(:all) do
     class Cat < ActiveCouch::Base
       site 'http://192.168.0.150:7777'
     end
   end  
 
-  after(:each) do
+  after(:all) do
     # Remove class definition so we can start fresh in each spec.
     Object.send(:remove_const, :Cat)
   end
@@ -20,14 +20,14 @@ describe "A subclass of ActiveCouch::Base object which has called establish_conn
 end
 
 describe "An object instantiated from a subclass of ActiveCouch::Base which has called establish_connection" do
-  before(:each) do
+  before(:all) do
     class Cat < ActiveCouch::Base
       site 'http://192.168.0.150'
     end
     @cat = Cat.new
   end
   
-  after(:each) do
+  after(:all) do
     # Remove class definition so we can start fresh in each spec.
     Object.send(:remove_const, :Cat)
   end

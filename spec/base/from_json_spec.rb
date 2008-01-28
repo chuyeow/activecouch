@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 describe "ActiveCouch::Base #from_json method, with many attributes" do
-  before(:each) do
+  before(:all) do
     class Hotel < ActiveCouch::Base
       has :name, :which_is => :text, :with_default_value => "Swissotel The Stamford"
       has :star_rating, :which_is => :decimal, :with_default_value => 5.0
@@ -17,6 +17,12 @@ describe "ActiveCouch::Base #from_json method, with many attributes" do
       has_many :hospitals
     end  
   end
+  
+  after(:all) do
+    Object.send(:remove_const, :Hotel)
+    Object.send(:remove_const, :Hospital)
+    Object.send(:remove_const, :CrazyPerson)
+  end  
   
   it "should have the from_json method" do
     Hotel.should respond_to(:from_json)
