@@ -236,3 +236,35 @@ describe "ActiveCouch::Base #find method with an ID passed" do
     person.should == nil
   end
 end
+
+describe "ActiveCouch::Base #find method with non-String params passed as arguments" do
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+        has :age
+    end
+    # Define the migration
+    class ByAge < ActiveCouch::Migration
+      define :for_db => 'people' do
+        with_key 'age'
+      end
+    end
+    # Create the database first
+    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    # Create a view
+    ActiveCouch::Migrator.migrate('http://localhost:5984', ByAge)
+    # Save two objects
+    Person.create(:age => "21")
+  end
+
+  after(:each) do
+    # Delete the database last
+    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    Object.send(:remove_const, :Person)
+  end
+
+  it "should return an ActiveCouch::Base object" do
+    person = Person.find(:first, :params => {:age => 21})
+    person.age.should == "21"
+  end
+end

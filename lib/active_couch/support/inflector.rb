@@ -1,8 +1,5 @@
 # This file is copied from the ActiveSupport project, which
 # is a part of the Ruby On Rails web-framework (http://rubyonrails.org).
-
-# TODO Consider a String extension that delegates to Inflector.
-
 require 'singleton'
 
 # The Inflector transforms words from singular to plural, class names to table names, modularized class names to ones without,

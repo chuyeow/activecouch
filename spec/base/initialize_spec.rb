@@ -47,9 +47,45 @@ describe "ActiveCouch::Base #new method with a hash containing a CouchDB reserve
     Object.send(:remove_const, :Person)
   end  
   
-  it "should be able to initialize attributes correclty from the has, including CouchDB reserved attributes" do
+  it "should be able to initialize attributes correctly, including CouchDB reserved attributes" do
     p = Person.new(:name => 'McLovin', :id => '123')
     p.name.should == 'McLovin'
     p.id.should == '123'
+  end
+end
+
+describe "ActiveCouch::Base #new method with a block (and self being passed to the block)" do
+  before(:all) do
+    class Dog < ActiveCouch::Base
+      has :name
+      has :age, :which_is => :number
+      has :collar
+    end
+  end
+  
+  after(:all) do
+    Object.send(:remove_const, :Dog)
+  end
+  
+  it "should be able to initialize all the attributes correctly" do
+    dog = Dog.new do |d|
+      d.name = "Buster"
+      d.age = 2
+      d.collar = "Stray"
+    end
+    
+    dog.name.should == "Buster"
+    dog.age.should == 2
+    dog.collar.should == "Stray"
+  end
+  
+  it "should be able to initialize all attributes (including CouchDB reserved attributes)" do
+    dog = Dog.new do |d|
+      d.name = "Spike"
+      d.id = 'underdog_1'
+    end
+    
+    dog.name.should == "Spike"
+    dog.id.should == 'underdog_1'
   end
 end

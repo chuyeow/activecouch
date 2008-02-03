@@ -4,11 +4,11 @@ module ActiveCouch
     
     def self.included(base)
       # Alias methods which will have callbacks, (for now only save and delete).
-      # This creates 2 sets of methods: save_with_callbacks, save_without_callbacks,
+      # This creates 2 pairs of methods: save_with_callbacks, save_without_callbacks,
       # delete_with_callbacks, delete_without_callbacks
       #
-      # save_without_callbacks and delete_without_callbacks have the same behaviour
-      # as the save and delete methods, respectively
+      # save_without_callbacks and delete_without_callbacks
+      # have the same behaviour as the save and delete methods, respectively
       [:save, :delete].each do |method|
         base.send :alias_method_chain, method, :callbacks
       end
@@ -48,6 +48,14 @@ module ActiveCouch
       result
     end
     private :delete_with_callbacks
+    
+    def find_with_callbacks
+      return false if callback(:before_find) == false
+      result = find_without_callbacks
+      callback(:after_find)
+      result
+    end
+    private :find_with_callbacks
     
     private
       def callback(method)

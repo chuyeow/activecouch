@@ -1,10 +1,19 @@
 module ActiveCouch
 
+  Symbol.class_eval do
+    def singularize; Inflector.singularize(self); end
+  end
+
   String.class_eval do
     require 'cgi'
-    def url_encode
-      CGI.escape("\"#{self.to_s}\"")
-    end
+    def url_encode; CGI.escape("\"#{self.to_s}\""); end
+    # Delegate to Inflector
+    def singularize; Inflector.singularize(self); end
+    def demodulize; Inflector.demodulize(self); end
+    def pluralize; Inflector.pluralize(self); end
+    def underscore; Inflector.underscore(self); end
+    def classify; Inflector.classify(self); end
+    def constantize; Inflector.constantize(self); end
   end
   
   Hash.class_eval do
@@ -47,27 +56,6 @@ module ActiveCouch
       parent_name.empty? ? Object : Inflector.constantize(parent_name)
     end
     
-    # Encapsulates the common pattern of:
-    #
-    #   alias_method :foo_without_feature, :foo
-    #   alias_method :foo, :foo_with_feature
-    #
-    # With this, you simply do:
-    #
-    #   alias_method_chain :foo, :feature
-    #
-    # And both aliases are set up for you.
-    #
-    # Query and bang methods (foo?, foo!) keep the same punctuation:
-    #
-    #   alias_method_chain :foo?, :feature
-    #
-    # is equivalent to
-    #
-    #   alias_method :foo_without_feature?, :foo?
-    #   alias_method :foo?, :foo_with_feature?
-    #
-    # so you can safely chain foo, foo?, and foo! with the same feature.
     def alias_method_chain(target, feature)
       # Strip out punctuation on predicates or bang methods since
       # e.g. target?_without_feature is not a valid method name.

@@ -3,6 +3,21 @@ module ActiveCouch
     SPECIAL_MEMBERS =  %w(attributes associations connection callbacks)
     DEFAULT_ATTRIBUTES = %w(id rev)
     
+    # Initializes an ActiveCouch::Base object. The constructor accepts both a hash, as well as 
+    # a block to initialize attributes
+    #
+    # Examples:
+    #   class Person < ActiveCouch::Base
+    #     has :name
+    #   end
+    #
+    #   person1 = Person.new(:name => "McLovin")
+    #   person1.name # => "McLovin"
+    #
+    #   person2 = Person.new do |p|
+    #     p.name = "Seth"
+    #   end
+    #   person2.name # => "Seth"
     def initialize(params = {})
       # Object instance variable
       @attributes = {}; @associations = {}; @callbacks = Hash.new; @connection = self.class.connection
@@ -24,7 +39,7 @@ module ActiveCouch
         self.instance_eval "def #{k}; associations[:#{k}].container; end"
         # If you have has_many :people, this will add a method called add_person to the object instantiated
         # from the class
-        self.instance_eval "def add_#{Inflector.singularize(k)}(val); associations[:#{k}].push(val); end"
+        self.instance_eval "def add_#{k.singularize}(val); associations[:#{k}].push(val); end"
       end
       
       klass_callbacks.each_key do |k|
@@ -38,6 +53,11 @@ module ActiveCouch
       
       # Set any instance variables if any, which are present in the params hash
       from_hash(params)
+      # Now you can do stuff like
+      # Person.new do |p|
+      #   p.name = 'McLovin'
+      # end
+      yield self if block_given?
     end
 
     # Generates a JSON representation of an instance of a subclass of ActiveCouch::Base.
@@ -137,6 +157,18 @@ module ActiveCouch
       end
     end
 
+    def marshal_dump # :nodoc:
+      self.to_json
+    end
+
+    def marshal_load(str) # :nodoc:
+      self.instance_eval do
+        hash = JSON.parse(str)
+        initialize(hash)
+      end
+      self
+    end        
+    
     class << self # Class methods
 
       # Returns the CouchDB database name that's backing this model. The database name is guessed from the name of the
@@ -164,10 +196,10 @@ module ActiveCouch
         else
           # Nested classes are prefixed with singular parent database name.
           if parent < ActiveCouch::Base
-            contained = Inflector.singularize(parent.database_name)
+            contained = parent.database_name.singularize
             contained << '_'
           end
-          "#{contained}#{Inflector.underscore(Inflector.demodulize(Inflector.pluralize(base.name)))}"
+          "#{contained}#{base.name.pluralize.demodulize.underscore}"
         end)
         set_database_name(name)
         name
@@ -289,7 +321,7 @@ module ActiveCouch
         case scope
           when :all    then find_every(options)
           when :first  then find_every(options).first
-          else              find_one(scope) #raise ArgumentError("find must have the first parameter as either :all or :first")
+          else              find_one(scope)
         end
       end
 
@@ -436,8 +468,9 @@ module ActiveCouch
         # So for example, if the params hash is :name => 'McLovin',
         # the view associated with it will be /by_name/by_name?key="McLovin"
         def query_string(params)
+          # TODO : Shouldn't check for multiple arguments
           if params.is_a?(Hash)
-            params.each { |k,v| return "by_#{k}/by_#{k}?key=#{v.url_encode}" }
+            params.each { |k,v| return "by_#{k}/by_#{k}?key=#{v.to_s.url_encode}" }
           else
             raise ArgumentError, "The value for the key 'params' must be a Hash"
           end
@@ -458,7 +491,6 @@ module ActiveCouch
         # Instantiates an ActiveCouch::Base object, based on the result obtained from
         # the GET URL
         def instantiate_object(result)
-          puts result
           hash = JSON.parse(result)
           self.new(hash)
         end
@@ -476,7 +508,7 @@ module ActiveCouch
               name, child_klass = assoc.name, assoc.klass
               v.each do |child|
                 child.is_a?(Hash) ? child_obj = child_klass.new(child) : child_obj = child
-                self.send "add_#{Inflector.singularize(name)}", child_obj
+                self.send "add_#{name.singularize}", child_obj
               end
             end
           elsif v.is_a?(Hash) # This means this is a has_one association (which we might add later)

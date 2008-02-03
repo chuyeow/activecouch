@@ -56,7 +56,7 @@ private
       
       def get_view(view)
         view_name = view
-        view_name = Inflector.underscore("#{self}") if view.nil? || view.length == 0
+        view_name = "#{self}".underscore if view.nil? || view.length == 0
         view_name  
       end
 

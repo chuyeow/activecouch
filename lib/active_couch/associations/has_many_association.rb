@@ -12,7 +12,7 @@ module ActiveCouch
         # Use the inflector to get the correct class if it is not defined 
         # in the :class key in the options hash
         # so has_many :contacts (will try to find the class Contact and set it to @klass)
-        @klass = Inflector.constantize(Inflector.classify(@name))
+        @klass = @name.classify.constantize #Inflector.constantize(Inflector.classify(@name))
       end
     end
 
