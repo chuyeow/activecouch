@@ -1,3 +1,6 @@
+# Used for marshaling and unmarshaling
+require 'zlib'
+
 module ActiveCouch
   class Base
     SPECIAL_MEMBERS =  %w(attributes associations connection callbacks)
@@ -158,12 +161,14 @@ module ActiveCouch
     end
 
     def marshal_dump # :nodoc:
-      self.to_json
+      # Deflate using Zlib
+      Zlib::Deflate.deflate(self.to_json)
     end
 
     def marshal_load(str) # :nodoc:
       self.instance_eval do
-        hash = JSON.parse(str)
+        # Inflate first, and then parse the JSON
+        hash = JSON.parse(Zlib::Inflate.inflate(str))
         initialize(hash)
       end
       self

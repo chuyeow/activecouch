@@ -20,20 +20,14 @@ describe "ActiveCouch::Base #marshal_dump method with just simple attributes" do
   end
 
   it "should produce valid JSON output when sent the marshal_dump method" do
-    marshal_dump = @h.marshal_dump
-    # Check for JSON regex, since attributes can appear in any order
-    (marshal_dump =~ /"name":"Swissotel The Stamford"/).should_not == nil
-    (marshal_dump =~ /"rooms":100/).should_not == nil
-    (marshal_dump =~ /"star_rating":5.0/).should_not == nil    
+    Zlib::Deflate.stub!(:deflate).and_return("Deflated JSON")
+    @h.marshal_dump.should == 'Deflated JSON'
   end
   
   it "should produce valid JSON output when an attribute has been changed and the marshal_dump method is sent" do
     @h.rooms = 200
-    marshal_dump = @h.marshal_dump
-    # Check for JSON regex, since attributes can appear in any order
-    (marshal_dump =~ /"name":"Swissotel The Stamford"/).should_not == nil
-    (marshal_dump =~ /"rooms":200/).should_not == nil
-    (marshal_dump =~ /"star_rating":5.0/).should_not == nil    
+    Zlib::Deflate.stub!(:deflate).and_return("Deflated JSON, Part deux")
+    @h.marshal_dump.should == 'Deflated JSON, Part deux'
   end
 end
 
@@ -63,11 +57,8 @@ describe "ActiveCouch::Base #marshal_dump with associations" do
   end  
 
   it "should produce valid JSON when sent the marshal_dump method" do
-    marshal_dump = @c.marshal_dump
-    # Check for JSON regex, since attributes can appear in any order
-    (marshal_dump =~ /"name":"Crazed McLovin"/).should_not == nil
-    (marshal_dump =~ /"hospitals":\[.*?\]/).should_not == nil
-    (marshal_dump =~ /\{.*?"name":"Crazy Hospital 1".*?\}/).should_not == nil
-    (marshal_dump =~ /\{.*?"name":"Crazy Hospital 2".*?\}/).should_not == nil    
+    # Stub the deflate method, which will basically give us the gzip'd JSON 
+    Zlib::Deflate.stub!(:deflate).and_return("Deflated JSON, Part three")
+    @c.marshal_dump.should == 'Deflated JSON, Part three'
   end
 end
