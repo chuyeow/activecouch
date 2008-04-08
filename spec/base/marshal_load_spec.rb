@@ -32,8 +32,8 @@ describe "ActiveCouch::Base #marshal_load method, with many attributes" do
   
   it "should instantiate an object when sent the marshal_load method with valid json as a parameter" do
     h = Hotel.new
-    Zlib::Inflate.stub!(:inflate).and_return("{\"name\":\"Swissotel The Stamford\",\"rooms\":200,\"star_rating\":4.0}")
-    h = h.marshal_load("About to get inflated!")
+
+    h = h.marshal_load("{\"name\":\"Swissotel The Stamford\",\"rooms\":200,\"star_rating\":4.0}")
     h.class.should == Hotel
     # Check whether all attributes are set correctly
     h.name.should == "Swissotel The Stamford"
@@ -42,9 +42,8 @@ describe "ActiveCouch::Base #marshal_load method, with many attributes" do
   end
   
   it "should instantiate an object when sent the marshal_load method with valid JSON (containing associations) as a parameter" do
-    Zlib::Inflate.stub!(:inflate).and_return('{"name":"Crazed McLovin","hospitals":[{"name":"Crazy Hospital 1"},{"name":"Crazy Hospital 2"}]}')
 
-    crazy = CrazyPerson.new.marshal_load("About to get inflated! Part Deux")
+    crazy = CrazyPerson.new.marshal_load('{"name":"Crazed McLovin","hospitals":[{"name":"Crazy Hospital 1"},{"name":"Crazy Hospital 2"}]}')
     crazy.class.should == CrazyPerson
     
     crazy.name == "Crazed McLovin"

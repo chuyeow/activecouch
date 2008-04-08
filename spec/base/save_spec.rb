@@ -64,3 +64,27 @@ describe "A new ActiveCouch::Base instance" do
   end
   
 end
+
+
+describe "A new ActiveCouch::Base instance" do
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name, :which_is => :text
+    end
+
+    @person = Person.new(:name => 'Seth')
+    # Create a database called people
+    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    # Save the document
+    @person.save
+  end
+
+  it "should be allowed to update a field and save again" do
+    @person.name = "McLovin"
+    @person.save.should == true
+    
+    @person.name.should == "McLovin"
+  end
+end
+    

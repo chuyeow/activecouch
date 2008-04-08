@@ -162,13 +162,13 @@ module ActiveCouch
 
     def marshal_dump # :nodoc:
       # Deflate using Zlib
-      Zlib::Deflate.deflate(self.to_json)
+      self.to_json
     end
 
     def marshal_load(str) # :nodoc:
       self.instance_eval do
         # Inflate first, and then parse the JSON
-        hash = JSON.parse(Zlib::Inflate.inflate(str))
+        hash = JSON.parse(str)
         initialize(hash)
       end
       self

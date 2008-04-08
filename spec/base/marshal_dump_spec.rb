@@ -20,13 +20,13 @@ describe "ActiveCouch::Base #marshal_dump method with just simple attributes" do
   end
 
   it "should produce valid JSON output when sent the marshal_dump method" do
-    Zlib::Deflate.stub!(:deflate).and_return("Deflated JSON")
+    @h.stub!(:to_json).and_return("Deflated JSON")
     @h.marshal_dump.should == 'Deflated JSON'
   end
   
   it "should produce valid JSON output when an attribute has been changed and the marshal_dump method is sent" do
     @h.rooms = 200
-    Zlib::Deflate.stub!(:deflate).and_return("Deflated JSON, Part deux")
+    @h.stub!(:to_json).and_return("Deflated JSON, Part deux")
     @h.marshal_dump.should == 'Deflated JSON, Part deux'
   end
 end
@@ -58,7 +58,7 @@ describe "ActiveCouch::Base #marshal_dump with associations" do
 
   it "should produce valid JSON when sent the marshal_dump method" do
     # Stub the deflate method, which will basically give us the gzip'd JSON 
-    Zlib::Deflate.stub!(:deflate).and_return("Deflated JSON, Part three")
+    @c.stub!(:to_json).and_return("Deflated JSON, Part three")
     @c.marshal_dump.should == 'Deflated JSON, Part three'
   end
 end
