@@ -266,7 +266,10 @@ module ActiveCouch
         unless name.is_a?(String) || name.is_a?(Symbol)
           raise ArgumentError, "#{name} is neither a String nor a Symbol"
         end
-        @attributes[name] = Attribute.new(name, options)  
+        # Set the attributes value to options[:with_default_value]
+        # In the constructor, this will be used to initialize the value of 
+        # the 'name' instance variable to the value in the hash
+        @attributes[name] = options[:with_default_value]
       end
 
       # Defines an array of objects which are 'children' of this class. The has_many
@@ -287,7 +290,29 @@ module ActiveCouch
         unless name.is_a?(String) || name.is_a?(Symbol)
           raise ArgumentError, "#{name} is neither a String nor a Symbol"
         end
-        @associations[name] = HasManyAssociation.new(name, options)
+      
+        @associations[name] = get_klass(name, options)
+      end
+
+      # Defines a single object which is a 'child' of this class. The has_one
+      # function guesses the class of the child, based on the name of the association,
+      # but can be over-ridden by the :class key in the options hash.
+      # 
+      # Examples:
+      #
+      #   class Child < ActiveCouch::Base
+      #     has :name
+      #   end
+      #
+      #   class GrandPerson < ActiveCouch::Base
+      #     has_one :child
+      #   end
+      def has_one(name, options = {})
+        unless name.is_a?(String) || name.is_a?(Symbol)
+          raise ArgumentError, "#{name} is neither a String nor a Symbol"
+        end
+      
+        @associations[name] = get_klass(name, options)
       end
 
       # Initializes an object of a subclass of ActiveCouch::Base based on a JSON
@@ -436,6 +461,11 @@ module ActiveCouch
       end
 
       private
+        # Generate a class from a name
+        def get_klass(name, options)
+          klass = options[:class]
+          !klass.nil? && klass.is_a?(Class) ? klass : name.classify.constantize
+        end
       
         # Returns the class descending directly from ActiveCouch in the inheritance hierarchy.
         def class_of_active_couch_descendant(klass)
