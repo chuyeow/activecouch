@@ -1,1 +1,0 @@
-require 'active_couch/associations/has_many_association'

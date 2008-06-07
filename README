@@ -23,10 +23,6 @@ Show me the docs
 We have some pretty basic RDoc bundled along with the source code. But the best source of documentation and sample code at this point will be the specs. The layout for specs has been inspired from the very inspiring Rubinius project (http://rubini.us) where each class has its own directory, and each method has its own spec file, thus making it very readable.
 
 
-Show me the code
-----------------
-SVN Repo is here: http://activecouch.googlecode.com/svn/trunk/
-
 Bugs/Issues
 -----------
 If and when you find bugs/feature requests, please raise a ticket at http://activecouch.googlecode.com . If we find that feature requests are crucial for our internal use, we will definitely integrate it into our project as soon as possible. But otherwise, we unfortunately cannot guarantee any deadlines on integration of feature requests. [http://www.flickr.com/photos/rooreynolds/243810133/]
