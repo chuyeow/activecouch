@@ -532,22 +532,15 @@ module ActiveCouch
     
     private
       def from_hash(hash)
-        # TODO: 
-        #  - Clean this up. Doesn't look very nice
-        #  - Raise errors if attribute/association is not present
         hash.each do |k,v|
           k = k.to_sym rescue k
-          if v.is_a?(Array) # This means this is a has_many association
-            unless (child_klass = @associations[k]).nil?
-              v.each do |child|
-                child.is_a?(Hash) ? child_obj = child_klass.new(child) : child_obj = child
-                self.send "add_#{k.to_s.singularize}", child_obj
-              end
+          if v.is_a?(Array) && !(child_klass = @associations[k]).nil?
+            v.each do |child|
+              child.is_a?(Hash) ? child_obj = child_klass.new(child) : child_obj = child
+              self.send "add_#{k.to_s.singularize}", child_obj
             end
-          elsif v.is_a?(Hash) # This means this is a has_one association
-            unless (child_klass = @associations[k]).nil?
-              self.send "add_#{k.to_s.singualize}", child_klass.new(v)
-            end
+          elsif v.is_a?(Hash) && !(child_klass = @associations[k]).nil?
+            self.send "add_#{k.to_s.singualize}", child_klass.new(v)
           else # This means this is a normal attribute
             self.send("#{k}=", v) if respond_to?("#{k}=")
           end
