@@ -304,7 +304,7 @@ module ActiveCouch
       #     has :name
       #   end
       #
-      #   class GrandPerson < ActiveCouch::Base
+      #   class GrandParent < ActiveCouch::Base
       #     has_one :child
       #   end
       def has_one(name, options = {})
@@ -445,11 +445,10 @@ module ActiveCouch
         end
         
         # TODO: Need a cleaner way to do this
-        subklass.instance_variable_set "@attributes", { :_id => Attribute.new(:_id, :with_default_value => nil), 
-                                                        :_rev => Attribute.new(:_rev, :with_default_value => nil) }
+        subklass.instance_variable_set "@attributes", { :_id => nil, :_rev => nil }
         subklass.instance_variable_set "@associations", {}
         subklass.instance_variable_set "@callbacks", Hash.new([])
-        subklass.instance_variable_set "@connections", nil
+        subklass.instance_variable_set "@connection", nil
                                                         
         SPECIAL_MEMBERS.each do |k|
           subklass.instance_eval "def #{k}; @#{k}; end"
@@ -539,17 +538,18 @@ module ActiveCouch
         hash.each do |k,v|
           k = k.to_sym rescue k
           if v.is_a?(Array) # This means this is a has_many association
-            unless (assoc = @associations[k]).nil?
-              name, child_klass = assoc.name, assoc.klass
+            unless (child_klass = @associations[k]).nil?
               v.each do |child|
                 child.is_a?(Hash) ? child_obj = child_klass.new(child) : child_obj = child
-                self.send "add_#{name.singularize}", child_obj
+                self.send "add_#{k.to_s.singularize}", child_obj
               end
             end
-          elsif v.is_a?(Hash) # This means this is a has_one association (which we might add later)
-            # Do nothing for now. More later
+          elsif v.is_a?(Hash) # This means this is a has_one association
+            unless (child_klass = @associations[k]).nil?
+              self.send "add_#{k.to_s.singualize}", child_klass.new(v)
+            end
           else # This means this is a normal attribute
-            self.send("#{k}=", v) if respond_to?("#{k}=") # @attributes.has_key?(k) || @attributes.has_key?("_#{k}")
+            self.send("#{k}=", v) if respond_to?("#{k}=")
           end
         end
       end
