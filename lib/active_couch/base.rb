@@ -463,7 +463,7 @@ module ActiveCouch
         # Generate a class from a name
         def get_klass(name, options)
           klass = options[:class]
-          !klass.nil? && klass.is_a?(Class) ? klass : name.classify.constantize
+          !klass.nil? && klass.is_a?(Class) ? klass : name.to_s.classify.constantize
         end
       
         # Returns the class descending directly from ActiveCouch in the inheritance hierarchy.
