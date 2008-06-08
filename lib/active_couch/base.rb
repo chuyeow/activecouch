@@ -1,6 +1,3 @@
-# Used for marshaling and unmarshaling
-require 'zlib'
-
 module ActiveCouch
   class Base
     SPECIAL_MEMBERS =  %w(attributes associations connection callbacks)
