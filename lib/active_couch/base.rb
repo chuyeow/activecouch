@@ -24,7 +24,11 @@ module ActiveCouch
     def initialize(params = {})
       # Object instance variable
       @attributes = {}; @associations = {}; @callbacks = Hash.new; @connection = self.class.connection
-      klass_atts = self.class.attributes; klass_assocs = self.class.associations; klass_callbacks = self.class.callbacks
+      # Initialize local variables from class instance variables
+      klass_atts = self.class.attributes
+      klass_assocs = self.class.associations
+      klass_callbacks = self.class.callbacks
+
       # ActiveCouch::Connection object will be readable in every 
       # object instantiated from a subclass of ActiveCouch::Base
       SPECIAL_MEMBERS.each do |k|
@@ -32,17 +36,17 @@ module ActiveCouch
       end
       
       klass_atts.each_key do |k|
-        @attributes[k] = klass_atts[k].dup
-        self.instance_eval "def #{k}; attributes[:#{k}].value; end"
-        self.instance_eval "def #{k}=(val); attributes[:#{k}].value = val; end"
+        @attributes[k] = klass_atts[k]
+        self.instance_eval "def #{k}; attributes[:#{k}]; end"
+        self.instance_eval "def #{k}=(val); attributes[:#{k}] = val; end"
       end
       
       klass_assocs.each_key do |k|
-        @associations[k] = HasManyAssociation.new(klass_assocs[k].name, :class => klass_assocs[k].klass)
-        self.instance_eval "def #{k}; associations[:#{k}].container; end"
-        # If you have has_many :people, this will add a method called add_person to the object instantiated
-        # from the class
-        self.instance_eval "def add_#{k.singularize}(val); associations[:#{k}].push(val); end"
+        @associations[k] = klass_assocs[k]
+        self.instance_eval "def #{k}; @#{k} || []; end"
+        # If you have has_many :people, this will add a method called add_person
+        # to the object instantiated from the class
+        self.instance_eval "def add_#{k.singularize}(val); #{k}.push(val); end"
       end
       
       klass_callbacks.each_key do |k|
@@ -84,8 +88,8 @@ module ActiveCouch
     def to_json
       hash = {}
       
-      attributes.each_value { |v| hash.merge!(v.to_hash) unless v.nil? }
-      associations.each_value { |v| hash.merge!(v.to_hash) }
+      hash.merge!(attributes)
+      associations.each_key { |name| hash.merge!({ name => self.__send__(name.to_s) }) }
       # and by the Power of Grayskull, convert the hash to json
       hash.to_json
     end
@@ -444,12 +448,13 @@ module ActiveCouch
           include ActiveCouch::Callbacks
         end
         
-        # TODO: Need a cleaner way to do this
-        subklass.instance_variable_set "@attributes", { :_id => nil, :_rev => nil }
-        subklass.instance_variable_set "@associations", {}
-        subklass.instance_variable_set "@callbacks", Hash.new([])
-        subklass.instance_variable_set "@connection", nil
-                                                        
+        subklass.instance_eval do
+          @attributes = { :_id => nil, :_rev => nil }
+          @associations = {}
+          @callbacks = Hash.new([])
+          @connection = nil # @@default_connection
+        end
+        
         SPECIAL_MEMBERS.each do |k|
           subklass.instance_eval "def #{k}; @#{k}; end"
         end
@@ -532,17 +537,20 @@ module ActiveCouch
     
     private
       def from_hash(hash)
-        hash.each do |k,v|
-          k = k.to_sym rescue k
-          if v.is_a?(Array) && !(child_klass = @associations[k]).nil?
-            v.each do |child|
+        hash.each do |property, value|
+          property = property.to_sym rescue property
+          # This means a has_many association
+          if value.is_a?(Array) && !(child_klass = @associations[property]).nil?
+            value.each do |child|
               child.is_a?(Hash) ? child_obj = child_klass.new(child) : child_obj = child
-              self.send "add_#{k.to_s.singularize}", child_obj
+              self.send "add_#{property.to_s.singularize}", child_obj
             end
-          elsif v.is_a?(Hash) && !(child_klass = @associations[k]).nil?
-            self.send "add_#{k.to_s.singualize}", child_klass.new(v)
-          else # This means this is a normal attribute
-            self.send("#{k}=", v) if respond_to?("#{k}=")
+          # This means a has_one association            
+          elsif value.is_a?(Hash) && !(child_klass = @associations[property]).nil?
+            self.send "add_#{property.to_s.singualize}", child_klass.new(value)
+          # This means this is a normal attribute            
+          else
+            self.send("#{property}=", value) if respond_to?("#{property}=")
           end
         end
       end

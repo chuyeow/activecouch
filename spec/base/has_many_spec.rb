@@ -45,9 +45,6 @@ describe "A class which is a subclass of ActiveCouch::Base with a has_many assoc
     @c.people.should == [@p1]
   end
   
-  it "should raise an error when trying to add an object which is not of the association's type" do
-    lambda{ @c.add_person(@a1) }.should raise_error(ActiveCouch::InvalidCouchTypeError)
-  end
 end
 
 describe "An object instantiated from class which is a subclass of ActiveCouch::Base" do
