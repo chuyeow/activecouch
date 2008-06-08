@@ -25,19 +25,24 @@ module ActiveCouch
       klass_atts = self.class.attributes
       klass_assocs = self.class.associations
       klass_callbacks = self.class.callbacks
-
       # ActiveCouch::Connection object will be readable in every 
       # object instantiated from a subclass of ActiveCouch::Base
       SPECIAL_MEMBERS.each do |k|
         self.instance_eval "def #{k}; @#{k}; end"
       end
-      
-      klass_atts.each_key do |k|
-        @attributes[k] = klass_atts[k]
-        self.instance_eval "def #{k}; attributes[:#{k}]; end"
-        self.instance_eval "def #{k}=(val); attributes[:#{k}] = val; end"
+      # First, initialize all the attributes
+      klass_atts.each_key do |property|
+        @attributes[property] = klass_atts[property]
+        self.instance_eval "def #{property}; attributes[:#{property}]; end"
+        self.instance_eval "def #{property}=(val); attributes[:#{property}] = val; end"
+        # These are special attributes which need aliases (for now, it's _id and _rev)
+        if property.to_s[0,1] == '_'
+          aliased_prop = property.to_s.slice(1, property.to_s.size)
+          self.instance_eval "def #{aliased_prop}; self.#{property}; end"
+          self.instance_eval "def #{aliased_prop}=(val); self.#{property}=(val); end"
+        end
       end
-      
+      # Then, initialize all the associations
       klass_assocs.each_key do |k|
         @associations[k] = klass_assocs[k]
         self.instance_eval "def #{k}; @#{k} ||= []; end"
@@ -45,22 +50,13 @@ module ActiveCouch
         # to the object instantiated from the class
         self.instance_eval "def add_#{k.singularize}(val); @#{k} = #{k} << val; end"
       end
-      
+      # Finally, all the calbacks      
       klass_callbacks.each_key do |k|
         @callbacks[k] = klass_callbacks[k].dup
       end
-      
-      DEFAULT_ATTRIBUTES.each do |x|
-        self.instance_eval "def #{x}; self._#{x}; end"
-        self.instance_eval "def #{x}=(val); self._#{x}=(val); end"
-      end
-      
       # Set any instance variables if any, which are present in the params hash
       from_hash(params)
-      # Now you can do stuff like
-      # Person.new do |p|
-      #   p.name = 'McLovin'
-      # end
+      # Handle the block, which can also be used to initialize the object
       yield self if block_given?
     end
 
