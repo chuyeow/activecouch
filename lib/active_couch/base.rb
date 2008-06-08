@@ -43,10 +43,10 @@ module ActiveCouch
       
       klass_assocs.each_key do |k|
         @associations[k] = klass_assocs[k]
-        self.instance_eval "def #{k}; @#{k} || []; end"
+        self.instance_eval "def #{k}; @#{k} ||= []; end"
         # If you have has_many :people, this will add a method called add_person
         # to the object instantiated from the class
-        self.instance_eval "def add_#{k.singularize}(val); #{k}.push(val); end"
+        self.instance_eval "def add_#{k.singularize}(val); @#{k} = #{k} << val; end"
       end
       
       klass_callbacks.each_key do |k|
@@ -54,7 +54,7 @@ module ActiveCouch
       end
       
       DEFAULT_ATTRIBUTES.each do |x|
-        self.instance_eval "def #{x}; _#{x}; end"
+        self.instance_eval "def #{x}; self._#{x}; end"
         self.instance_eval "def #{x}=(val); self._#{x}=(val); end"
       end
       
@@ -88,7 +88,7 @@ module ActiveCouch
     def to_json
       hash = {}
       
-      hash.merge!(attributes)
+      hash.merge!(attributes.reject{ |k,v| v.nil? })
       associations.each_key { |name| hash.merge!({ name => self.__send__(name.to_s) }) }
       # and by the Power of Grayskull, convert the hash to json
       hash.to_json
@@ -273,7 +273,15 @@ module ActiveCouch
         # Set the attributes value to options[:with_default_value]
         # In the constructor, this will be used to initialize the value of 
         # the 'name' instance variable to the value in the hash
-        @attributes[name] = options[:with_default_value]
+        value = case options[:which_is]
+          when :text then ""
+          when :number then 0
+          when :decimal then 0.0
+          when :boolean then true
+          else ""
+        end
+
+        @attributes[name] = options[:with_default_value] || value
       end
 
       # Defines an array of objects which are 'children' of this class. The has_many

@@ -216,8 +216,8 @@ describe "ActiveCouch::Base #find method with an ID passed" do
     ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
     # Create a view
     ActiveCouch::Migrator.migrate('http://localhost:5984', ByName)
-    # Save two objects
-    Person.create(:name => 'McLovin', :id => '123')
+    # Save one object
+    p = Person.create(:name => 'McLovin', :id => '123')
   end
 
   after(:each) do
@@ -254,7 +254,7 @@ describe "ActiveCouch::Base #find method with non-String params passed as argume
     # Create a view
     ActiveCouch::Migrator.migrate('http://localhost:5984', ByAge)
     # Save two objects
-    Person.create(:age => "21")
+    p = Person.create(:age => "21")
   end
 
   after(:each) do

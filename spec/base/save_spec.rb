@@ -80,6 +80,12 @@ describe "A new ActiveCouch::Base instance" do
     @person.save
   end
 
+  after(:each) do
+    # Delete after we're done
+    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    Object.send(:remove_const, :Person)
+  end
+
   it "should be allowed to update a field and save again" do
     @person.name = "McLovin"
     @person.save.should == true
