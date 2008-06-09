@@ -2,6 +2,8 @@ module ActiveCouch
   class Base
     SPECIAL_MEMBERS =  %w(attributes associations connection callbacks)
     DEFAULT_ATTRIBUTES = %w(id rev)
+    TYPES = { :text => "", :number => 0, :decimal => 0.0, :boolean => true }
+    TYPES.default = ""
     
     # Initializes an ActiveCouch::Base object. The constructor accepts both a hash, as well as 
     # a block to initialize attributes
@@ -80,8 +82,9 @@ module ActiveCouch
     #   aged_person.to_json # {"age":3.5, "_id":"abc-def"}
     def to_json
       hash = {}
-      
+      # First merge the attributes...
       hash.merge!(attributes.reject{ |k,v| v.nil? })
+      # ...and then the associations
       associations.each_key { |name| hash.merge!({ name => self.__send__(name.to_s) }) }
       # and by the Power of Grayskull, convert the hash to json
       hash.to_json
@@ -266,15 +269,7 @@ module ActiveCouch
         # Set the attributes value to options[:with_default_value]
         # In the constructor, this will be used to initialize the value of 
         # the 'name' instance variable to the value in the hash
-        value = case options[:which_is]
-          when :text then ""
-          when :number then 0
-          when :decimal then 0.0
-          when :boolean then true
-          else ""
-        end
-
-        @attributes[name] = options[:with_default_value] || value
+        @attributes[name] = options[:with_default_value] || TYPES[:which_is]
       end
 
       # Defines an array of objects which are 'children' of this class. The has_many
