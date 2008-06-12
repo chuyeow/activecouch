@@ -347,13 +347,9 @@ module ActiveCouch
       def find(*arguments)
         scope = arguments.slice!(0)
         search_params = arguments.slice!(0) || {}
-        # Get the offset and limit if they exist
-        offset = arguments.slice!(0) || {}; limit = arguments.slice!(0) || {}
-        # Merge the offset and limit as one because the order doesn't matter
-        options = {}.merge!(offset).merge!(limit)
         
         case scope
-          when :all    then find_every(search_params, options)
+          when :all    then find_every(search_params)
           when :first  then find_every(search_params, {:limit => 1}).first
           else              find_one(scope)
         end
@@ -369,9 +365,11 @@ module ActiveCouch
       #
       #   # This returns the count of the number of objects
       #   people_count = Person.count(:params => {:name => "McLovin"})
-      def count(params = {})
-        result_set = find(:all, params)
-        result_set.size
+      def count(search_params = {})
+        path = "/#{database_name}/_view/#{query_string(search_params[:params], {:limit => 0})}"
+        result = connection.get(path)
+        
+        JSON.parse(result)['total_rows'].to_i
       end
 
       # Initializes a new subclass of ActiveCouch::Base and saves in the CouchDB database
@@ -483,11 +481,14 @@ module ActiveCouch
         end
         
         # Returns an array of ActiveCouch::Base objects by querying a CouchDB permanent view
-        def find_every(search_params, options)
-          case from = options[:from]
+        def find_every(search_params, overriding_options = {})
+          case from = search_params[:from]
           when String
             path = "#{from}"
           else
+            options = search_params.reject { |k,v| k == :params }
+            options.merge!(overriding_options)
+            
             path = "/#{database_name}/_view/#{query_string(search_params[:params], options)}"
           end
           instantiate_collection(connection.get(path))
@@ -507,18 +508,17 @@ module ActiveCouch
         # So for example, if the params hash is :name => 'McLovin',
         # the view associated with it will be /by_name/by_name?key="McLovin"
         def query_string(search_params, options)
-          if search_params.is_a?(Hash)
-            raise ArgumentError, "ActiveCouch supports only one condition per query" if search_params.keys.size != 1
-            key = search_params.keys.first
-            
-            query_string = "by_#{key}/by_#{key}?key=#{search_params[key].to_s.url_encode}"
-            query_string = "#{query_string}&startkey=#{options[:offset].to_s.url_encode}" unless options[:offset].nil?
-            query_string = "#{query_string}&count=#{options[:limit].to_s}" unless options[:limit].nil?
-            
-            query_string
-          else
-            raise ArgumentError, "The value for the key 'params' must be a Hash"
+          unless search_params.is_a?(Hash) || search_params.keys.size != 1
+            raise ArgumentError, "Wrong options for ActiveCouch::Base#find" and return
           end
+
+          key = search_params.keys.first
+            
+          query_string = "by_#{key}/by_#{key}?key=#{search_params[key].to_s.url_encode}"
+          query_string = "#{query_string}&skip=#{options[:offset]}" unless options[:offset].nil?
+          query_string = "#{query_string}&count=#{options[:limit]}" unless options[:limit].nil?
+            
+          query_string
         end
         
         # Instantiates a collection of ActiveCouch::Base objects, based on the 

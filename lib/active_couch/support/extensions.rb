@@ -15,6 +15,12 @@ module ActiveCouch
     def classify; Inflector.classify(self); end
     def constantize; Inflector.constantize(self); end
   end
+
+  Array.class_eval do
+    def extract_options!
+      last.is_a?(::Hash) ? pop : {}
+    end
+  end  
   
   Hash.class_eval do
     # Flatten on the array removes everything into *one* single array,
