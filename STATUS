@@ -1,0 +1,8 @@
+Version 0.1.9 is a maintenance release (the last version of ActiveCouch which will support CouchDB 0.7.2/3). Version 0.2.0 and upwards will support CouchDB 0.8.0 and upwards.
+
+Significant Changes
+
+- Major reduction in cruft/bloat
+- ActiveCouch::Base#find method supports :offset and :limit methods (Refer to specs for usage examples) and thus supports pagination
+- ActiveCouch::Base#count method is now extremely fast because it uses the official CouchDB API to count, and not the naive implementation of the earlier release
+ 
