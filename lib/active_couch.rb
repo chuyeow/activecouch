@@ -4,8 +4,6 @@ $:.unshift(File.dirname(__FILE__)) unless
 require 'rubygems'
 require 'json'
 
-require 'active_couch/attribute'
-require 'active_couch/associations'
 require 'active_couch/support'
 require 'active_couch/errors'
 require 'active_couch/base'
