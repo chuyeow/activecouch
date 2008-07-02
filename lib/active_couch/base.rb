@@ -530,7 +530,7 @@ module ActiveCouch
         # the key 'value'
         def instantiate_collection(result)
           hash = JSON.parse(result)
-          hash['rows'].collect { |row| self.new(row['value']) }
+          hash['rows'].collect { |row| self.new(row['value'].merge('_id' => row['id'])) }
         end
         
         # Instantiates an ActiveCouch::Base object, based on the result obtained from
