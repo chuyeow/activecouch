@@ -1,19 +1,19 @@
 module ActiveCouch
 
   Symbol.class_eval do
-    def singularize; Inflector.singularize(self); end
+    def singularize; ActiveCouch::Inflector.singularize(self); end
   end
 
   String.class_eval do
     require 'cgi'
     def url_encode; CGI.escape("\"#{self.to_s}\""); end
     # Delegate to Inflector
-    def singularize; Inflector.singularize(self); end
-    def demodulize; Inflector.demodulize(self); end
-    def pluralize; Inflector.pluralize(self); end
-    def underscore; Inflector.underscore(self); end
-    def classify; Inflector.classify(self); end
-    def constantize; Inflector.constantize(self); end
+    def singularize; ActiveCouch::Inflector.singularize(self); end
+    def demodulize; ActiveCouch::Inflector.demodulize(self); end
+    def pluralize; ActiveCouch::Inflector.pluralize(self); end
+    def underscore; ActiveCouch::Inflector.underscore(self); end
+    def classify; ActiveCouch::Inflector.classify(self); end
+    def constantize; ActiveCouch::Inflector.constantize(self); end
   end
 
   Array.class_eval do
@@ -59,7 +59,7 @@ module ActiveCouch
     # +::MyModule+, then Object is returned.
     def parent
       parent_name = name.split('::')[0..-2] * '::'
-      parent_name.empty? ? Object : Inflector.constantize(parent_name)
+      parent_name.empty? ? Object : ActiveCouch::Inflector.constantize(parent_name)
     end
     
     def alias_method_chain(target, feature)

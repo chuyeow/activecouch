@@ -1,4 +1,4 @@
-Inflector.inflections do |inflect|
+ActiveCouch::Inflector.inflections do |inflect|
   inflect.plural(/$/, 's')
   inflect.plural(/s$/i, 's')
   inflect.plural(/(ax|test)is$/i, '\1es')
