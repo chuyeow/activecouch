@@ -1,5 +1,7 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
+IS_ALPHA = ENV['COUCHDB_IS_ALPHA'] == 'true'
+
 describe "ActiveCouch::Base #count method with just simple attributes" do
   before(:each) do
     # Define the model
@@ -9,7 +11,7 @@ describe "ActiveCouch::Base #count method with just simple attributes" do
     end
     # Define the migration
     class ByName < ActiveCouch::Migration
-      define :for_db => 'people' do
+      define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'name'
       end
     end
@@ -49,7 +51,7 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     
     # Define the migration
     class ByLastName < ActiveCouch::Migration
-      define :for_db => 'people' do
+      define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'last_name'
       end
     end

@@ -40,8 +40,10 @@ module ActiveCouch
         response = conn.delete("/#{name}")
 
         case response.code
+        when '200'
+        when '201'
         when '202'
-          true # 202 = success
+          true # 201 = success
         when '404'
           raise ActiveCouch::MigrationError, "Database '#{name}' does not exist" # 404 = database doesn't exist
         else

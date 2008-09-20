@@ -8,31 +8,31 @@ Why?
 ----
 As they say, necessity is the mother of invention. And as they also say, death before inconvenience. Our company, Bezurk (http://www.bezurk.com) is experimenting with CouchDB as we have a need for a document-model to store vast amounts of information, and we needed a convenience mapper in our favourite language, in order to use CouchDB elegantly. Since, the Rubyists here at Bezurk are already very familiar with ActiveRecord semantics, care has been taken to ensure that ActiveCouch resembled it in many ways.
 
+Contributors
+------------
+
+- Cheah Chu Yeow (http://www.github.com/chuyeow)
+- Carlos Villela (http://www.github.com/cv)
+
 Requirements
 ------------
  - Ruby 1.8.5 or above (http://www.ruby-lang.org)
  - rubygems 0.9.4 (http://rubygems.org)
  - JSON gem (http://json.rubyforge.org) [Used for JSON encoding/decoding]
  - RSpec gem (http://rspec.rubyforge.org) [Used to run specs]
- - CouchDB 0.7.2 (http://couchdb.googlecode.com) [Some specs require running CouchDB at localhost:5984]
+ - CouchDB 0.7.x (alpha) or 0.8.0 and upwards (http://incubator.apache.org/couchdb/community/code.html) [Some specs require running CouchDB at localhost:5984]
+ 
+Important Notice
+----------------
+
+- If you are running specs against the 'alpha' versions of CouchDB, i.e. pre 0.8.0 versions, please set the environment variable COUCHDB_IS_ALPHA to true
+
+In bash, this is achieved like so:
+
+% export COUCHDB_IS_ALPHA=true
+
+- Also, for all migrations, if you need to run them against 'alpha' versions of CouchDB, i.e. pre-0.8.0, please us pass the :is_alpha => true variable as part of the define block
+
+Refer spec/migration/view_js_spec.rb
 
 We would also recommend installing ZenTest (http://www.zenspider.com/ZSS/Products/ZenTest/) which provides a very convenient way to run specs.
-
-Show me the docs
-----------------
-We have some pretty basic RDoc bundled along with the source code. But the best source of documentation and sample code at this point will be the specs. The layout for specs has been inspired from the very inspiring Rubinius project (http://rubini.us) where each class has its own directory, and each method has its own spec file, thus making it very readable.
-
-
-Bugs/Issues
------------
-If and when you find bugs/feature requests, please raise a ticket at http://activecouch.googlecode.com . If we find that feature requests are crucial for our internal use, we will definitely integrate it into our project as soon as possible. But otherwise, we unfortunately cannot guarantee any deadlines on integration of feature requests. [http://www.flickr.com/photos/rooreynolds/243810133/]
-
-So, if you find bugs/feature requests, we'd greatly appreciate patches (which include specs), but otherwise please bear with us.
-
-
-Looking Forward
----------------
-
-Obviously, we are very excited about developments in CouchDB land and we will be closely monitoring the CouchDB project, in order to further improve ActiveCouch. Since we are using ActiveCouch internally, we are expecting heavy development in CouchDB in the months to come.
-
-"The Journey is the Reward"

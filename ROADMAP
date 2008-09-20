@@ -1,0 +1,5 @@
+
+Version 0.2.0 will be more Rails-friendly, with the following features planned:
+
+1. Support for CouchDB configuration (such as host, alpha-ness, etc.) through a YAML file
+2. A 'couchify' command which will CouchDB functionality into a Rails app

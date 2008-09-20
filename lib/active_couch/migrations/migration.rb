@@ -6,7 +6,7 @@ module ActiveCouch
       # Class instance variables
       @view = nil; @database = nil
       # These are accessible only at class-scope
-      attr_accessor :view, :database  
+      attr_accessor :view, :database
       # Set the view name and database name in the define method and then execute
       # the block
       def define(*args)
@@ -21,6 +21,8 @@ module ActiveCouch
         # Define the view and database instance variables based on the args passed
         # Don't care if the key doesn't exist
         @view, @database = get_view(view), options[:for_db]
+        # Define alpha if specified as part of options
+        @is_alpha = options[:is_alpha] || false
         # Block being called to set other parameters for the Migration
         yield if block_given?
       end
@@ -38,13 +40,17 @@ module ActiveCouch
       end
       
       def view_js
-        results_hash = {"_id" => "_design/#{@view}", "language" => "text/javascript"}
-        results_hash["views"] =  { @view => view_function }
+        results_hash = { "_id" => "_design/#{@view}", "language" => view_language }
+        results_hash["views"] =  view_function
         # Returns the JSON format for the function
         results_hash.to_json
       end
 
 private
+      def view_language
+        @is_alpha ? 'text/javascript' : 'javascript'
+      end
+
       def include_attrs
         attrs = "doc"
         unless @attrs.nil?
@@ -65,13 +71,17 @@ private
 
         js = "function(doc) { "
         js << "if(#{@filter}) { " if filter_present
-        js << "map(doc.#{@key}, #{include_attrs});"
+        js << "#{couchdb_view_mapper}(doc.#{@key}, #{include_attrs});"
         js << " } " if filter_present
         js << " }"
         
-        js
+        # Return different structures based on whether 
+        @is_alpha ? { @view => js } : { @view => {'map' => js} }
       end
 
+      def couchdb_view_mapper
+        @is_alpha ? 'map' : 'emit'
+      end
     end # End Class Methods
   end # End Class Migration
 end # End module ActiveCouch

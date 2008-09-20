@@ -3,10 +3,13 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 require 'net/http'
 require 'uri'
 
+# Needed to pass specs successfully
+IS_ALPHA = ENV['COUCHDB_IS_ALPHA'] == 'true'
+
 describe ActiveCouch::Migrator, "#migrate (that actually connects to a CouchDB server)" do
   before(:each) do
     class ByFace < ActiveCouch::Migration
-      define :for_db => 'ac_test_3' do
+      define :for_db => 'ac_test_3', :is_alpha => IS_ALPHA do
         with_key 'face'
       end
     end
@@ -31,7 +34,7 @@ end
 describe ActiveCouch::Migrator, "#migrate with site and migration" do
   before(:all) do
     class ByFace < ActiveCouch::Migration
-      define :for_db => 'test_db' do
+      define :for_db => 'test_db', :is_alpha => IS_ALPHA do
         with_key 'face'
       end
     end
