@@ -449,7 +449,7 @@ module ActiveCouch
           @attributes = { :_id => nil, :_rev => nil }
           @associations = {}
           @callbacks = Hash.new([])
-          @connection = nil # @@default_connection
+          @connection = ActiveCouch::Base.instance_variable_get('@connection')
         end
         
         SPECIAL_MEMBERS.each do |k|
