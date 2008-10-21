@@ -21,6 +21,14 @@ module ActiveCouch
         end
       end
 
+      def exists_database?(site, name)
+        conn = Connection.new(site)
+        response = conn.get("/#{name}")
+        true
+      rescue ActiveCouch::ResourceNotFound
+        false
+      end
+
       def create_database(site, name)
         conn = Connection.new(site)
         response = conn.put("/#{name}", "{}")
