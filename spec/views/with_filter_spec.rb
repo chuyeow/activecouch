@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
-describe "ActiveCouch::Migration #with_filter method" do
+describe "ActiveCouch::View #with_filter method" do
   it "should set @filter correctly" do
-    class ByLatitude < ActiveCouch::Migration
+    class ByLatitude < ActiveCouch::View
       define :for_db => 'hotels' do
         with_filter 'doc.name == "Hilton"'
       end

@@ -6,11 +6,11 @@ describe "ActiveCouch::Base #create method" do
       site 'http://localhost:5984/'
       has :name
     end
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
   end
   
   after(:each) do
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
   

@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
-describe "ActiveCouch::Migration #include_attributes method" do
+describe "ActiveCouch::View #include_attributes method" do
   it "should set the attrs instance variable to an array, if passed a multi-element array" do
-    class ByLongitude < ActiveCouch::Migration
+    class ByLongitude < ActiveCouch::View
       define :for_db => 'hotels' do
         include_attributes :name, :rating, :latitude, :longitude, :address
       end
@@ -11,7 +11,7 @@ describe "ActiveCouch::Migration #include_attributes method" do
   end
 
   it "should set the attrs instance variable correctly, if passed a single-element array" do
-    class ByLongitude < ActiveCouch::Migration
+    class ByLongitude < ActiveCouch::View
       define :for_db => 'hotels' do
         include_attributes :name
       end
@@ -20,7 +20,7 @@ describe "ActiveCouch::Migration #include_attributes method" do
   end
   
   it "should set the attrs instance variable to an empty array, if not passed an array" do
-    class ByLongitude < ActiveCouch::Migration
+    class ByLongitude < ActiveCouch::View
       define :for_db => 'hotels' do
         include_attributes {}
       end

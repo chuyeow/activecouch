@@ -6,12 +6,12 @@ describe "ActiveCouch::Base #delete instance-level method" do
       site 'http://localhost:5984/'
       has :name
     end
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
     @person = Person.create(:name => 'McLovin')
   end
   
   after(:each) do
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
   
@@ -46,12 +46,12 @@ describe "ActiveCouch::Base #delete class-level method" do
       site 'http://localhost:5984/'
       has :name
     end
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
     @person = Person.create(:name => 'McLovin')
   end
 
   after(:each) do
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
   

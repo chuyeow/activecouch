@@ -7,12 +7,12 @@ describe "A Person subclass of ActiveCouch::Base" do
       has :name
     end
     # Create a database called people
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
   end
   
   after(:each) do
     # Delete after we're done
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
    
@@ -35,12 +35,12 @@ describe "A new ActiveCouch::Base instance" do
     
     @person = Person.new(:name => 'Seth')
     # Create a database called people
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
   end
 
   after(:each) do
     # Delete after we're done
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
 
@@ -75,14 +75,14 @@ describe "A new ActiveCouch::Base instance" do
 
     @person = Person.new(:name => 'Seth')
     # Create a database called people
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
     # Save the document
     @person.save
   end
 
   after(:each) do
     # Delete after we're done
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
 

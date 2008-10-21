@@ -9,23 +9,23 @@ describe "ActiveCouch::Base #count method with just simple attributes" do
       site 'http://localhost:5984'
       has :name
     end
-    # Define the migration
-    class ByName < ActiveCouch::Migration
+    # Define the view
+    class ByName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByName)
     # Save an object
     Person.new(:name => 'McLovin').save
   end
 
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
 
@@ -49,16 +49,16 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
       has :last_name
     end
     
-    # Define the migration
-    class ByLastName < ActiveCouch::Migration
+    # Define the view
+    class ByLastName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'last_name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByLastName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByLastName)
     # Save two objects
     Person.create(:last_name => 'McLovin', :first_name => 'Seth')
     Person.create(:last_name => 'McLovin', :first_name => 'Bob')
@@ -66,7 +66,7 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
   
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
   

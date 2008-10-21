@@ -16,16 +16,16 @@ describe "ActiveCouch::Base #find method with an object which has associations" 
     end
       
     # Define the migration
-    class ByTitle < ActiveCouch::Migration
+    class ByTitle < ActiveCouch::View
       define :for_db => 'blogs', :is_alpha => IS_ALPHA do
         with_key 'title'
       end
     end
     
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'blogs')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'blogs')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByTitle)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByTitle)
     blog = Blog.new(:title => 'iPhone in Singapore')
     # Associations
     blog.add_comment(Comment.new(:body => 'soon plz'))
@@ -36,7 +36,7 @@ describe "ActiveCouch::Base #find method with an object which has associations" 
   
   after(:each) do
     # Create the database first
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'blogs')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'blogs')
     Object.send(:remove_const, :Blog)
     Object.send(:remove_const, :Comment)
   end
@@ -63,15 +63,15 @@ describe "ActiveCouch::Base #find method with no params passed" do
         has :name
     end
     # Define the migration
-    class ByName < ActiveCouch::Migration
+    class ByName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByName)
     # Save two objects
     Person.create(:name => 'McLovin')
     Person.create(:name => 'Seth')
@@ -79,7 +79,7 @@ describe "ActiveCouch::Base #find method with no params passed" do
 
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
   
@@ -94,22 +94,22 @@ describe "ActiveCouch::Base #find method with an ID passed" do
         has :name
     end
     # Define the migration
-    class ByName < ActiveCouch::Migration
+    class ByName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByName)
     # Save one object
     p = Person.create(:name => 'McLovin', :id => '123')
   end
 
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
   
@@ -131,22 +131,22 @@ describe "ActiveCouch::Base #find method with non-String params passed as argume
         has :age
     end
     # Define the migration
-    class ByAge < ActiveCouch::Migration
+    class ByAge < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'age'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByAge)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByAge)
     # Save two objects
     p = Person.create(:age => "21")
   end
 
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
 
@@ -165,22 +165,22 @@ describe "ActiveCouch::Base #find method with just simple attributes" do
       has :name
     end
     # Define the migration
-    class ByName < ActiveCouch::Migration
+    class ByName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByName)
     # Save an object
     Person.new(:name => 'McLovin').save
   end
 
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
 
@@ -233,15 +233,15 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     end
     
     # Define the migration
-    class ByLastName < ActiveCouch::Migration
+    class ByLastName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'last_name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByLastName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByLastName)
     # Save two objects
     Person.create(:last_name => 'McLovin', :first_name => 'Seth')
     Person.create(:last_name => 'McLovin', :first_name => 'Bob')
@@ -249,7 +249,7 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
   
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
   
@@ -282,15 +282,15 @@ describe "ActiveCouch::Base #find method :limit option used" do
     end
     
     # Define the migration
-    class ByLastName < ActiveCouch::Migration
+    class ByLastName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'last_name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByLastName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByLastName)
     # Save two objects
     Person.create(:last_name => 'McLovin', :first_name => 'Seth')
     Person.create(:last_name => 'McLovin', :first_name => 'Bob')
@@ -298,7 +298,7 @@ describe "ActiveCouch::Base #find method :limit option used" do
   
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
   
@@ -328,15 +328,15 @@ describe "ActiveCouch::Base #find method :limit and :offset options used" do
     end
     
     # Define the migration
-    class ByLastName < ActiveCouch::Migration
+    class ByLastName < ActiveCouch::View
       define :for_db => 'people', :is_alpha => IS_ALPHA do
         with_key 'last_name'
       end
     end
     # Create the database first
-    ActiveCouch::Migrator.create_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984', 'people')
     # Create a view
-    ActiveCouch::Migrator.migrate('http://localhost:5984', ByLastName)
+    ActiveCouch::Exporter.export('http://localhost:5984', ByLastName)
     # Save two objects
     Person.create(:id => 'Seth', :last_name => 'McLovin', :first_name => 'Seth')
     Person.create(:id => 'Bob', :last_name => 'McLovin', :first_name => 'Bob')
@@ -345,7 +345,7 @@ describe "ActiveCouch::Base #find method :limit and :offset options used" do
   
   after(:each) do
     # Delete the database last
-    ActiveCouch::Migrator.delete_database('http://localhost:5984', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984', 'people')
     Object.send(:remove_const, :Person)
   end
   

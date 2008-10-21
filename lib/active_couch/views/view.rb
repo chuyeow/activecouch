@@ -1,12 +1,12 @@
 require 'json'
 
 module ActiveCouch
-  class Migration
+  class View
     class << self # Class Methods
       # Class instance variables
-      @view = nil; @database = nil
+      @name = nil; @database = nil
       # These are accessible only at class-scope
-      attr_accessor :view, :database
+      attr_accessor :name, :database
       # Set the view name and database name in the define method and then execute
       # the block
       def define(*args)
@@ -14,13 +14,13 @@ module ActiveCouch
         first = args.slice!(0); second = args.slice!(0)
         # Based on the classes of the arguments passed, set instance variables
         case first.class.to_s
-          when 'String', 'Symbol' then view = first.to_s;  options = second || {}
-          when 'Hash' then  view = ''; options = first
+          when 'String', 'Symbol' then name = first.to_s;  options = second || {}
+          when 'Hash' then  name = ''; options = first
           else raise ArgumentError, "Wrong arguments used to define the view"
         end
         # Define the view and database instance variables based on the args passed
         # Don't care if the key doesn't exist
-        @view, @database = get_view(view), options[:for_db]
+        @name, @database = get_name(name), options[:for_db]
         # Define alpha if specified as part of options
         @is_alpha = options[:is_alpha] || false
         # Block being called to set other parameters for the Migration
@@ -39,7 +39,7 @@ module ActiveCouch
         @attrs = attrs unless attrs.nil? || !attrs.is_a?(Array)
       end
       
-      def view_js
+      def to_json
         results_hash = { "_id" => "_design/#{@view}", "language" => view_language }
         results_hash["views"] =  view_function
         # Returns the JSON format for the function
@@ -60,9 +60,9 @@ private
         attrs
       end
       
-      def get_view(view)
-        view_name = view
-        view_name = "#{self}".underscore if view.nil? || view.length == 0
+      def get_name(name)
+        view_name = name
+        view_name = "#{self}".underscore if name.nil? || name.length == 0
         view_name  
       end
 

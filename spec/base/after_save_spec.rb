@@ -17,12 +17,12 @@ describe "ActiveCouch::Base #after_save method" do
         end
     end
     # Migration needed for this spec
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
   end
   
   after(:each) do
     # Migration needed for this spec    
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
   
@@ -49,12 +49,12 @@ describe "ActiveCouch::Base #after_save method with a block as argument" do
       after_save { |record| record.saved_revision = record.rev }
     end
     # Migration needed for this spec
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
   end
   
   after(:each) do
     # Migration needed for this spec    
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
   
@@ -83,12 +83,12 @@ describe "ActiveCouch::Base #after_save method with an Object (which implements 
       after_save RevisionSetter.new
     end
     # Migration needed for this spec
-    ActiveCouch::Migrator.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
   end
   
   after(:each) do
     # Migration needed for this spec    
-    ActiveCouch::Migrator.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
     Object.send(:remove_const, :Person)
   end
   

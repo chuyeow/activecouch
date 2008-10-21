@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
-describe "ActiveCouch::Migration #with_key method" do
+describe "ActiveCouch::View #with_key method" do
   it "should set @key correctly" do
-    class ByName < ActiveCouch::Migration
+    class ByName < ActiveCouch::View
       define :by_name, :for_db => 'people' do
         with_key 'name'
       end
