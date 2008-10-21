@@ -21,7 +21,7 @@ module ActiveCouch
         end
       end
 
-      def exists_database?(site, name)
+      def exists?(site, name)
         conn = Connection.new(site)
         response = conn.get("/#{name}")
         true

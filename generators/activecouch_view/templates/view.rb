@@ -1,3 +1,3 @@
-class <%= class_name %> < ActiveCouch::Base
+class <%= class_name %> < ActiveCouch::View
   
 end
