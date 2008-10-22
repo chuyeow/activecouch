@@ -11,7 +11,7 @@ module ActiveCouch
         end
         # If the database is not defined in the view, it can be supported
         # as an option to the export method
-        database_name = view.database || opts[:database]
+        database_name = opts[:database] || view.database
         conn = Connection.new(site)
         # The view function for a view with name 'by_name' and database 'activecouch_test' should be PUT to
         # http://#{host}:#{port}/activecouch_test/_design/by_name.
@@ -34,7 +34,7 @@ module ActiveCouch
         end
         # If the database is not defined in the view, it can be supported
         # as an option to the export method
-        database_name = view.database || opts[:database]
+        database_name = opts[:database] || view.database
         conn = Connection.new(site)
         if(view_json = exists?(site, "/#{database_name}/_design/#{view.name}"))
           rev = JSON.parse(view_json)['_rev']
