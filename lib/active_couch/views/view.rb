@@ -70,7 +70,7 @@ private
 
         js = "function(doc) { "
         js << "if(#{@filter}) { " if filter_present
-        js << "#{couchdb_view_mapper}(doc.#{@key}, #{include_attrs});"
+        js << "emit(#{couchdb_view_mapper}, #{include_attrs});"
         js << " } " if filter_present
         js << " }"
 
@@ -78,7 +78,7 @@ private
       end
 
       def couchdb_view_mapper
-        'emit'
+        @key.nil? ? 'null' : "doc.#{@key}"
       end
     end # End Class Methods
   end # End Class Migration
