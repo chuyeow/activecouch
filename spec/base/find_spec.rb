@@ -1,7 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
-IS_ALPHA = ENV['COUCHDB_IS_ALPHA'] == 'true'
-
 describe "ActiveCouch::Base #find method with an object which has associations" do
   before(:each) do
     class Comment < ActiveCouch::Base
@@ -17,7 +15,7 @@ describe "ActiveCouch::Base #find method with an object which has associations" 
       
     # Define the migration
     class ByTitle < ActiveCouch::View
-      define :for_db => 'blogs', :is_alpha => IS_ALPHA do
+      define :for_db => 'blogs' do
         with_key 'title'
       end
     end
@@ -56,6 +54,7 @@ describe "ActiveCouch::Base #find method with an object which has associations" 
   
 end
 
+
 describe "ActiveCouch::Base #find method with no params passed" do
   before(:each) do
     class Person < ActiveCouch::Base
@@ -64,7 +63,7 @@ describe "ActiveCouch::Base #find method with no params passed" do
     end
     # Define the migration
     class ByName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'name'
       end
     end
@@ -95,7 +94,7 @@ describe "ActiveCouch::Base #find method with an ID passed" do
     end
     # Define the migration
     class ByName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'name'
       end
     end
@@ -132,7 +131,7 @@ describe "ActiveCouch::Base #find method with non-String params passed as argume
     end
     # Define the migration
     class ByAge < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'age'
       end
     end
@@ -166,7 +165,7 @@ describe "ActiveCouch::Base #find method with just simple attributes" do
     end
     # Define the migration
     class ByName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'name'
       end
     end
@@ -234,7 +233,7 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     
     # Define the migration
     class ByLastName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'last_name'
       end
     end
@@ -283,7 +282,7 @@ describe "ActiveCouch::Base #find method :limit option used" do
     
     # Define the migration
     class ByLastName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'last_name'
       end
     end
@@ -329,7 +328,7 @@ describe "ActiveCouch::Base #find method :limit and :offset options used" do
     
     # Define the migration
     class ByLastName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'last_name'
       end
     end
@@ -372,7 +371,5 @@ describe "ActiveCouch::Base #find method :limit and :offset options used" do
       p.rev.should_not == nil
     end
   end
-  
-  
-end
 
+end

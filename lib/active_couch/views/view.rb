@@ -21,8 +21,6 @@ module ActiveCouch
         # Define the view and database instance variables based on the args passed
         # Don't care if the key doesn't exist
         @name, @database = get_name(name), options[:for_db]
-        # Define alpha if specified as part of options
-        @is_alpha = options[:is_alpha] || false
         # Block being called to set other parameters for the Migration
         yield if block_given?
       end
@@ -40,7 +38,7 @@ module ActiveCouch
       end
       
       def to_json
-        results_hash = { "_id" => "_design/#{@view}", "language" => view_language }
+        results_hash = { "_id" => "_design/#{@name}", "language" => view_language }
         results_hash["views"] =  view_function
         # Returns the JSON format for the function
         results_hash.to_json
@@ -48,7 +46,7 @@ module ActiveCouch
 
 private
       def view_language
-        @is_alpha ? 'text/javascript' : 'javascript'
+        'javascript'
       end
 
       def include_attrs
@@ -74,13 +72,12 @@ private
         js << "#{couchdb_view_mapper}(doc.#{@key}, #{include_attrs});"
         js << " } " if filter_present
         js << " }"
-        
-        # Return different structures based on whether 
-        @is_alpha ? { @view => js } : { @view => {'map' => js} }
+
+        { @name => {'map' => js} }
       end
 
       def couchdb_view_mapper
-        @is_alpha ? 'map' : 'emit'
+        'emit'
       end
     end # End Class Methods
   end # End Class Migration

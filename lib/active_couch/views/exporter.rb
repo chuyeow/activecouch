@@ -4,15 +4,17 @@
 module ActiveCouch
   class Exporter
     class << self # Class methods
-      def export(site, view)
-        if view.name.nil? || view.database.nil?
+      def export(site, view, opts = {})
+        if view.name.nil? || (view.database.nil? && opts[:database].nil?)
           raise ActiveCouch::ViewError, "Both the name and the database need to be defined in your view"
         end
-
+        # If the database is not defined in the view, it can be supported
+        # as an option to the export method
+        database_name = view.database || opts[:database]
         conn = Connection.new(site)
         # view for a view with name 'by_name' and database 'activecouch_test' should be PUT to
         # http://#{host}:#{port}/activecouch_test/_design/by_name.
-        response = conn.put("/#{view.database}/_design/#{view.name}", view.to_json)
+        response = conn.put("/#{database_name}/_design/#{view.name}", view.to_json)
         case response.code
         when '201'
           true # 201 = success
