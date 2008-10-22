@@ -33,17 +33,17 @@ module ActiveCouch
       
     def after_delete() end
     
-    def save_with_callbacks
+    def save_with_callbacks(opts = {})
       return false if callback(:before_save) == false
-      result = save_without_callbacks
+      result = save_without_callbacks(opts)
       callback(:after_save)
       result
     end
     private :save_with_callbacks
     
-    def delete_with_callbacks
+    def delete_with_callbacks(opts = {})
       return false if callback(:before_delete) == false
-      result = delete_without_callbacks
+      result = delete_without_callbacks(opts)
       callback(:after_delete)
       result
     end

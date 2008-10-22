@@ -105,11 +105,12 @@ module ActiveCouch
     #   person.id = 'abc'
     #   person.save # true
     #   person.new? # false
-    def save
+    def save(options = {})
+      database = options[:to_database] || self.class.database_name
       if id
-        response = connection.put("/#{self.class.database_name}/#{id}", to_json)
+        response = connection.put("/#{database}/#{id}", to_json)
       else
-        response = connection.post("/#{self.class.database_name}", to_json)
+        response = connection.post("/#{database}", to_json)
       end
       # Parse the JSON obtained from the body...
       results = JSON.parse(response.body)
@@ -144,13 +145,15 @@ module ActiveCouch
     #   
     #   person = Person.create(:name => 'McLovin')
     #   person.delete # true
-    def delete
+    def delete(options = {})
+      database = options[:from_database] || self.class.database_name
+      
       if new?
         raise ArgumentError, "You must specify a revision for the document to be deleted"
       elsif id.nil?
         raise ArgumentError, "You must specify an ID for the document to be deleted"
       end
-      response = connection.delete("/#{self.class.database_name}/#{id}?rev=#{rev}")
+      response = connection.delete("/#{database}/#{id}?rev=#{rev}")
       # Set the id and rev to nil, since the object has been successfully deleted from CouchDB
       if response.code =~ /20[0,2]/
         self.id = nil; self.rev = nil

@@ -7,11 +7,15 @@ describe "ActiveCouch::Base #delete instance-level method" do
       has :name
     end
     ActiveCouch::Exporter.create_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'good_people')
+    
     @person = Person.create(:name => 'McLovin')
   end
   
   after(:each) do
     ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'people')
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'good_people')
+    
     Object.send(:remove_const, :Person)
   end
   
@@ -37,6 +41,19 @@ describe "ActiveCouch::Base #delete instance-level method" do
     p = Person.new(:name => 'McLovin')
     p.rev = '123'
     lambda { p.delete }.should raise_error(ArgumentError, "You must specify an ID for the document to be deleted")
+  end
+  
+  it "should be able to accept a from_database option which will delete it from the right database" do
+    p = Person.new(:name => 'McLovin')
+    p.save(:to_database => 'good_people')
+    p.delete(:from_database => 'good_people').should == true
+    
+    p.id.should == nil
+    p.rev.should == nil
+    
+    # Check whether document has actually been deleted
+    response = Net::HTTP.get_response URI.parse("http://localhost:5984/good_people/_all_docs/")
+    response.body.index('"total_rows":0').should_not == nil
   end
 end
 

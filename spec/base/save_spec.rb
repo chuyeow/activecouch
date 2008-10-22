@@ -63,8 +63,43 @@ describe "A new ActiveCouch::Base instance" do
     @person.id.should == 'abc_def'
   end
   
+  it "should be allowed to save to a database with a name which does not correspond to the name of the class" do
+    
+  end
+  
 end
 
+describe "A new ActiveCouch::Base instance" do
+  before(:each) do
+    class Person < ActiveCouch::Base
+      site 'http://localhost:5984/'
+      has :name, :which_is => :text
+    end
+    
+    @person = Person.new(:name => 'Seth')
+    # Create a database called people
+    ActiveCouch::Exporter.create_database('http://localhost:5984/', 'good_people')
+  end
+
+  after(:each) do
+    # Delete after we're done
+    ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'good_people')
+    Object.send(:remove_const, :Person)
+  end
+
+  it "should be new" do
+    @person.should be_new
+  end
+
+  it "should be allowed to save to a database with a name which does not correspond to the name of the class" do
+    @person.save(:to_database => 'good_people')
+    
+    @person.id.should_not == nil
+    @person.rev.should_not == nil
+    @person.should_not be_new
+  end
+  
+end
 
 describe "A new ActiveCouch::Base instance" do
   before(:each) do
@@ -93,4 +128,3 @@ describe "A new ActiveCouch::Base instance" do
     @person.name.should == "McLovin"
   end
 end
-    

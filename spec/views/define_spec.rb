@@ -25,5 +25,3 @@ describe "ActiveCouch::View #define method" do
     }.should raise_error(ArgumentError, 'Wrong arguments used to define the view')
   end
 end
-
-  
