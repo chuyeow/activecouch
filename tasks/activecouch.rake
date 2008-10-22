@@ -52,6 +52,7 @@ namespace :activecouch do
     end
   end
   
+  desc "Deletes a view in CouchDB"
   task :delete_view do
     unless (view_name = ENV['view']).nil?
       site = YAML::load(File.open(File.join(Rails.root, 'config', 'activecouch.yml')))[Rails.env]['site']

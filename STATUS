@@ -1,5 +1,0 @@
-Version 0.1.95 supports CouchDB versions 0.8.0 and upwards, as well as 0.7.x versions of CouchDB. Since it is commonly known that 0.7.x is the alpha version of CouchDB, to make sure specs pass against 0.7.x, please set the environment variable COUCHDB_IS_ALPHA to true.
-
-On bash, this is achieved like so:
-
-% export COUCHDB_IS_ALPHA=true

@@ -354,6 +354,22 @@ module ActiveCouch
         end
       end
 
+      # Retrieves one or more object(s) from a CouchDB database, based on the search
+      # parameters given. This method is similar to the find_by_sql method in
+      # ActiveRecord, in a way that instead of using any conditions, we use a raw 
+      # URL to query a CouchDB view.
+      # 
+      # Example:
+      #   class Person < ActiveCouch::Base
+      #     has :name
+      #   end
+      #
+      #   # This returns a single instance of an ActiveCouch::Base subclass
+      #   people = Person.find_from_url("/people/_view/by_name/by_name?key=%22Mclovin%22")
+      def find_from_url(url)
+        instantiate_collection(connection.get(url))
+      end
+
       # Retrieves the count of the number of objects in the CouchDB database, based on the
       # search parameters given.
       #
@@ -369,6 +385,21 @@ module ActiveCouch
         result = connection.get(path)
         
         JSON.parse(result)['total_rows'].to_i
+      end
+
+      # Retrieves the count of the number of objects in the CouchDB database, irrespective of
+      # any search criteria
+      #
+      # Example:
+      #   class Person < ActiveCouch::Base
+      #     has :name
+      #   end
+      #
+      #   # This returns the count of the number of objects
+      #   people_count = Person.count_all
+      def count_all
+        result = connection.get("/#{database_name}")
+        JSON.parse(result)['doc_count'].to_i
       end
 
       # Initializes a new subclass of ActiveCouch::Base and saves in the CouchDB database

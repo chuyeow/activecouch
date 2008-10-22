@@ -6,7 +6,7 @@ With ActiveCouch, you can easily save, query, delete documents to/from a CouchDB
 
 Why?
 ----
-As they say, necessity is the mother of invention. And as they also say, death before inconvenience. Our company, Bezurk (http://www.bezurk.com) is experimenting with CouchDB as we have a need for a document-model to store vast amounts of information, and we needed a convenience mapper in our favourite language, in order to use CouchDB elegantly. Since, the Rubyists here at Bezurk are already very familiar with ActiveRecord semantics, care has been taken to ensure that ActiveCouch resembled it in many ways.
+As they say, necessity is the mother of invention. And as they also say, death before inconvenience. Our company, Wego (http://www.wego.com) has been using CouchDB for the past six months now, as we have a need for a document-model to store vast amounts of information, and we needed a convenience mapper in our favourite language, in order to use CouchDB elegantly. Since, the Rubyists here at Wego are already very familiar with ActiveRecord semantics, care has been taken to ensure that ActiveCouch resembled it in many ways.
 
 Contributors
 ------------
@@ -20,19 +20,9 @@ Requirements
  - rubygems 0.9.4 (http://rubygems.org)
  - JSON gem (http://json.rubyforge.org) [Used for JSON encoding/decoding]
  - RSpec gem (http://rspec.rubyforge.org) [Used to run specs]
- - CouchDB 0.7.x (alpha) or 0.8.0 and upwards (http://incubator.apache.org/couchdb/community/code.html) [Some specs require running CouchDB at localhost:5984]
+ - CouchDB 0.8.0 and upwards (http://incubator.apache.org/couchdb/community/code.html) [Some specs require running CouchDB at localhost:5984]
  
 Important Notice
 ----------------
 
-- If you are running specs against the 'alpha' versions of CouchDB, i.e. pre 0.8.0 versions, please set the environment variable COUCHDB_IS_ALPHA to true
-
-In bash, this is achieved like so:
-
-% export COUCHDB_IS_ALPHA=true
-
-- Also, for all migrations, if you need to run them against 'alpha' versions of CouchDB, i.e. pre-0.8.0, please us pass the :is_alpha => true variable as part of the define block
-
-Refer spec/migration/view_js_spec.rb
-
-We would also recommend installing ZenTest (http://www.zenspider.com/ZSS/Products/ZenTest/) which provides a very convenient way to run specs.
+ActiveCouch v0.2.0 does not support pre-0.8.0 versions of CouchDB

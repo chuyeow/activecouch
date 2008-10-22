@@ -6,7 +6,6 @@ module ActiveCouch
     class << self # Class methods
       def export(site, view, opts = {})
         existing_view = {}
-        
         if view.name.nil? || (view.database.nil? && opts[:database].nil?)
           raise ActiveCouch::ViewError, "Both the name and the database need to be defined in your view"
         end
@@ -30,7 +29,6 @@ module ActiveCouch
 
       def delete(site, view, opts = {})
         rev = nil
-        
         if view.name.nil? || (view.database.nil? && opts[:database].nil?)
           raise ActiveCouch::ViewError, "Both the name and the database need to be defined in your view"
         end
@@ -45,7 +43,7 @@ module ActiveCouch
         # http://#{host}:#{port}/activecouch_test/_design/by_name.
         response = conn.delete("/#{database_name}/_design/#{view.name}?rev=#{rev}")
         if response.code =~ /20[0,2]/
-          true # 201 = success
+          true # 20[0,2] = success
         else
           raise ActiveCouch::ViewError, "Error deleting view - got HTTP response #{response.code}"
         end
@@ -53,7 +51,7 @@ module ActiveCouch
 
       def exists?(site, name)
         conn = Connection.new(site)
-        response = conn.get("/#{name}")
+        response = conn.get("#{name}")
         response
       rescue ActiveCouch::ResourceNotFound
         false

@@ -1,7 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
-IS_ALPHA = ENV['COUCHDB_IS_ALPHA'] == 'true'
-
 describe "ActiveCouch::Base #count method with just simple attributes" do
   before(:each) do
     # Define the model
@@ -11,7 +9,7 @@ describe "ActiveCouch::Base #count method with just simple attributes" do
     end
     # Define the view
     class ByName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'name'
       end
     end
@@ -29,18 +27,18 @@ describe "ActiveCouch::Base #count method with just simple attributes" do
     Object.send(:remove_const, :Person)
   end
 
-  it "should respond to the find method" do
+  it "should respond to the count method" do
     Person.should respond_to(:count)
   end
 
-  it "should return an array with one Person object in it, when sent method find with parameter :all" do
+  it "should return an array with one Person object in it, when sent method count with search parameters" do
     count = Person.count(:params => {:name => 'McLovin'})
     count.should == 1
   end
 end
 
 
-describe "ActiveCouch::Base #find method with multiple documents in the CouchDB database" do
+describe "ActiveCouch::Base #count method with multiple documents in the CouchDB database" do
   before(:each) do
     class Person < ActiveCouch::Base
       site 'http://localhost:5984'
@@ -51,7 +49,7 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     
     # Define the view
     class ByLastName < ActiveCouch::View
-      define :for_db => 'people', :is_alpha => IS_ALPHA do
+      define :for_db => 'people' do
         with_key 'last_name'
       end
     end
@@ -70,7 +68,7 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     Object.send(:remove_const, :Person)
   end
   
-  it "should find all objects in the database when find method is sent the param :all" do
+  it "should count all objects in the database when count method is sent with valid search parameters" do
     count = Person.count(:params => {:last_name => 'McLovin'})
     count.should == 2
   end
