@@ -18,7 +18,7 @@ describe ActiveCouch::Exporter, "#export (that actually connects to a CouchDB se
     ActiveCouch::Exporter.delete_database('http://localhost:5984/', 'ac_test_3')
   end
 
-  it "should be able to create a permanent view when sent the migrate method" do
+  it "should be able to create a permanent view when sent the export method" do
     ActiveCouch::Exporter.export('http://localhost:5984', ByFace).should == true
     # This is the view document. To actually query this particular view, the URL to be used
     # is http://#{host}:#{port}/ac_test_1/_view/by_face/by_face 
@@ -28,7 +28,7 @@ describe ActiveCouch::Exporter, "#export (that actually connects to a CouchDB se
   end
 end
 
-describe ActiveCouch::Exporter, "#migrate with site and migration" do
+describe ActiveCouch::Exporter, "#export with site and migration" do
   before(:all) do
     class ByFace < ActiveCouch::View
       define :for_db => 'test_db' do

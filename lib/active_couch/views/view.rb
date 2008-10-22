@@ -37,9 +37,10 @@ module ActiveCouch
         @attrs = attrs unless attrs.nil? || !attrs.is_a?(Array)
       end
       
-      def to_json
-        results_hash = { "_id" => "_design/#{@name}", "language" => view_language }
-        results_hash["views"] =  view_function
+      def to_json(existing_view = {})
+        results_hash = {  "_id" => "_design/#{@name}", "language" => view_language }
+        results_hash.merge!(existing_view)
+        results_hash['views'] = view_function
         # Returns the JSON format for the function
         results_hash.to_json
       end

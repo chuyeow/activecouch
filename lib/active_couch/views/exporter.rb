@@ -5,6 +5,8 @@ module ActiveCouch
   class Exporter
     class << self # Class methods
       def export(site, view, opts = {})
+        existing_view = {}
+        
         if view.name.nil? || (view.database.nil? && opts[:database].nil?)
           raise ActiveCouch::ViewError, "Both the name and the database need to be defined in your view"
         end
@@ -12,9 +14,12 @@ module ActiveCouch
         # as an option to the export method
         database_name = view.database || opts[:database]
         conn = Connection.new(site)
-        # view for a view with name 'by_name' and database 'activecouch_test' should be PUT to
+        # The view function for a view with name 'by_name' and database 'activecouch_test' should be PUT to
         # http://#{host}:#{port}/activecouch_test/_design/by_name.
-        response = conn.put("/#{database_name}/_design/#{view.name}", view.to_json)
+        if(view_json = exists?(site, "/#{database_name}/_design/#{view.name}"))
+          existing_view = JSON.parse(view_json)
+        end
+        response = conn.put("/#{database_name}/_design/#{view.name}", view.to_json(existing_view))
         case response.code
         when '201'
           true # 201 = success
@@ -23,10 +28,33 @@ module ActiveCouch
         end
       end
 
+      def delete(site, view, opts = {})
+        rev = nil
+        
+        if view.name.nil? || (view.database.nil? && opts[:database].nil?)
+          raise ActiveCouch::ViewError, "Both the name and the database need to be defined in your view"
+        end
+        # If the database is not defined in the view, it can be supported
+        # as an option to the export method
+        database_name = view.database || opts[:database]
+        conn = Connection.new(site)
+        if(view_json = exists?(site, "/#{database_name}/_design/#{view.name}"))
+          rev = JSON.parse(view_json)['_rev']
+        end
+        # The view function for a view with name 'by_name' and database 'activecouch_test' should be PUT to
+        # http://#{host}:#{port}/activecouch_test/_design/by_name.
+        response = conn.delete("/#{database_name}/_design/#{view.name}?rev=#{rev}")
+        if response.code =~ /20[0,2]/
+          true # 201 = success
+        else
+          raise ActiveCouch::ViewError, "Error deleting view - got HTTP response #{response.code}"
+        end
+      end
+
       def exists?(site, name)
         conn = Connection.new(site)
         response = conn.get("/#{name}")
-        true
+        response
       rescue ActiveCouch::ResourceNotFound
         false
       end
