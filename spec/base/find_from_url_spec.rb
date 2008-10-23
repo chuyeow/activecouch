@@ -48,6 +48,8 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     person.class.should == Person
     person.last_name.should == 'McLovin'
     person.first_name.should == 'Portnoy'
+    
+    Person.find_from_url("/people/345").should == nil
   end
 
 end

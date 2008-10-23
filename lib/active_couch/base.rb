@@ -376,7 +376,11 @@ module ActiveCouch
         if url =~ /_view/
           instantiate_collection(connection.get(url))
         else
-          instantiate_object(connection.get(url))
+          begin
+            instantiate_object(connection.get(url))
+          rescue ResourceNotFound
+            nil
+          end
         end
       end
 
