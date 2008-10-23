@@ -370,7 +370,14 @@ module ActiveCouch
       #   # This returns a single instance of an ActiveCouch::Base subclass
       #   people = Person.find_from_url("/people/_view/by_name/by_name?key=%22Mclovin%22")
       def find_from_url(url)
-        instantiate_collection(connection.get(url))
+        # If the url contains the word '_view' it means it will return objects as an array,
+        # how ever if it doesn't it means the user is getting an ID-based url like /properties/abcd
+        # which will only return a single object
+        if url =~ /_view/
+          instantiate_collection(connection.get(url))
+        else
+          instantiate_object(connection.get(url))
+        end
       end
 
       # Retrieves the count of the number of objects in the CouchDB database, based on the

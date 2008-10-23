@@ -22,6 +22,7 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     # Save two objects
     Person.create(:last_name => 'McLovin', :first_name => 'Seth')
     Person.create(:last_name => 'McLovin', :first_name => 'Bob')
+    Person.create(:id => '123', :last_name => 'McLovin', :first_name => 'Portnoy')
   end
   
   after(:each) do
@@ -34,12 +35,19 @@ describe "ActiveCouch::Base #find method with multiple documents in the CouchDB 
     people = Person.find_from_url("/people/_view/by_last_name/by_last_name?key=%22McLovin%22")
     # Check if it is an array and if the size is 2
     people.class.should == Array
-    people.size.should == 2
+    people.size.should == 3
     # The id's and rev's for all the objects must not be nil
     people.each do |p|
       p.id.should_not == nil
       p.rev.should_not == nil
     end
+  end
+
+  it "should fetch a single object from a URL if the URL specified is not accessing a view" do
+    person = Person.find_from_url("/people/123")
+    person.class.should == Person
+    person.last_name.should == 'McLovin'
+    person.first_name.should == 'Portnoy'
   end
 
 end
