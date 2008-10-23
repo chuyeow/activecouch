@@ -4,6 +4,12 @@
 module ActiveCouch
   class Exporter
     class << self # Class methods
+
+      def all_databases(site)
+        conn = Connection.new(site)
+        JSON.parse(conn.get("/_all_dbs"))
+      end
+      
       def export(site, view, opts = {})
         existing_view = {}
         if view.name.nil? || (view.database.nil? && opts[:database].nil?)
