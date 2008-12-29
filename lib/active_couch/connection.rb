@@ -33,6 +33,13 @@ module ActiveCouch
   # 409 Conflict
   class ResourceConflict < ClientError; end # :nodoc:
 
+  # 412 Precondition Failed - this is returned when there is an update conflict (usually means revisions don't match).
+  class UpdateConflict < ClientError # :nodoc:
+    def to_s
+      "Failed with #{response.code} #{response.message if response.respond_to?(:message)}. Body: #{response.body}"
+    end
+  end
+
   # 5xx Server Error
   class ServerError < ConnectionError; end # :nodoc:
 
@@ -113,6 +120,8 @@ module ActiveCouch
             raise(MethodNotAllowed.new(response))
           when 409
             raise(ResourceConflict.new(response))
+          when 412
+            raise(UpdateConflict.new(response))
           when 422
             raise(ResourceInvalid.new(response))
           when 401...500
